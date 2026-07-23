@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IoT Mario Adventure - Vibrant Edition</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 10px;
+            background: radial-gradient(circle at center, #111827, #030712);
+            color: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            touch-action: manipulation;
+            overflow: hidden;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            color: #ff007f;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.6rem;
+            text-align: center;
+            text-shadow: 0 0 12px #ff007f, 0 0 20px #00f0ff;
+            animation: headerGlow 3s infinite alternate;
+        }
+
+        @keyframes headerGlow {
+            0% { text-shadow: 0 0 10px #ff007f, 0 0 20px #00f0ff; }
+            100% { text-shadow: 0 0 20px #00ff88, 0 0 30px #ff007f; }
+        }
+
+        #game-container {
+            position: relative;
+            box-shadow: 0 0 35px rgba(0, 240, 255, 0.4), 0 0 15px rgba(255, 0, 127, 0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 3px solid #00f0ff;
+            max-width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 900px;
+        }
+
+        /* Touch Controls */
+        #touch-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 12px;
+            padding: 0 10px;
+        }
+
+        .d-pad, .action-pad {
+            display: flex;
+            gap: 12px;
+        }
+
+        .touch-btn {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9));
+            border: 2px solid #00f0ff;
+            color: #00f0ff;
+            font-size: 24px;
+            font-weight: bold;
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+            transition: transform 0.1s;
+        }
+
+        .touch-btn:active {
+            background: #00f0ff;
+            color: #000;
+            transform: scale(0.92);
+        }
+
+        .btn-jump {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.3), rgba(16, 185, 129, 0.4));
+            border-color: #00ff88;
+            color: #00ff88;
+            width: 72px;
+            height: 72px;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
+        .btn-jump:active {
+            background: #00ff88;
+            color: #000;
+        }
+
+        /* Animated Overlay UI */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 7, 18, 0.92);
+            backdrop-filter: blur(6px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            z-index: 10;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .overlay h2 {
+            font-size: 2.3rem;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            animation: pulseTitle 1.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulseTitle {
+            0% { transform: scale(1); filter: drop-shadow(0 0 10px currentColor); }
+            100% { transform: scale(1.06); filter: drop-shadow(0 0 25px currentColor); }
+        }
+
+        .overlay p {
+            font-size: 1.1rem;
+            color: #e5e7eb;
+            max-width: 520px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #00f0ff, #00ff88);
+            color: #030712;
+            border: none;
+            padding: 15px 40px;
+            font-size: 19px;
+            font-weight: 800;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+            transition: all 0.25s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (min-width: 1024px) and (hover: hover) {
+            #touch-controls {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📡 Master Labeeb IoT Adventure</h1>
+    
+    <div id="game-container">
+        <canvas id="gameCanvas" width="900" height="450"></canvas>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="overlay">
+            <h2 style="color: #00f0ff; text-shadow: 0 0 15px #00f0ff;">Build the Ultimate IoT System!</h2>
+            <p>Help Labeeb collect all <b>8 IoT components</b> across the system before the timer runs out. Avoid system bugs 👾!</p>
+            <button id="startBtn" class="btn">START ADVENTURE 🚀</button>
+        </div>
+
+        <!-- Win/Game Over Screen -->
+        <div id="endScreen" class="overlay hidden">
+            <h2 id="endTitle">CONGRATULATIONS!</h2>
+            <p id="endMessage">You successfully built the IoT network!</p>
+            <button id="restartBtn" class="btn">PLAY AGAIN 🔄</button>
+        </div>
+    </div>
+
+    <!-- Mobile Touch Controls -->
+    <div id="touch-controls">
+        <div class="d-pad">
+            <div id="btnLeft" class="touch-btn">◀</div>
+            <div id="btnRight" class="touch-btn">▶</div>
+        </div>
+        <div class="action-pad">
+            <div id="btnJump" class="touch-btn btn-jump">▲</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const startScreen = document.getElementById("startScreen");
+        const endScreen = document.getElementById("endScreen");
+        const endTitle = document.getElementById("endTitle");
+        const endMessage = document.getElementById("endMessage");
+        const startBtn = document.getElementById("startBtn");
+        const restartBtn = document.getElementById("restartBtn");
+
+        const marioImg = new Image();
+        marioImg.src = "robot.png";
+
+        // ==========================================
+        // 🎵 محرك الأصوات المطور (Web Audio API)
+        // ==========================================
+        let audioCtx = null;
+
+        function unlockAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            unlockAudio();
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'jump') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(160, now);
+                osc.frequency.exponentialRampToValueAtTime(650, now + 0.15);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            } 
+            else if (type === 'collect') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.08);
+                osc.frequency.setValueAtTime(783.99, now + 0.16);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } 
+            else if (type === 'win') {
+                const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.type = 'square';
+                    o.frequency.value = freq;
+                    g.gain.setValueAtTime(0.2, now + idx * 0.09);
+                    g.gain.linearRampToValueAtTime(0.01, now + idx * 0.09 + 0.25);
+                    o.start(now + idx * 0.09);
+                    o.stop(now + idx * 0.09 + 0.25);
+                });
+            } 
+            else if (type === 'lose') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(320, now);
+                osc.frequency.linearRampToValueAtTime(70, now + 0.45);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.45);
+                osc.start(now);
+                osc.stop(now + 0.45);
+            }
+        }
+
+        // ==========================================
+        // 🎉 أوراق الاحتفال الحركية (Confetti FX)
+        // ==========================================
+        let confetti = [];
+        function createConfetti() {
+            confetti = [];
+            const colors = ['#00f0ff', '#ff007f', '#00ff88', '#ffea00', '#a855f7'];
+            for (let i = 0; i < 90; i++) {
+                confetti.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * -canvas.height,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speedY: Math.random() * 3 + 2,
+                    speedX: Math.random() * 2 - 1,
+                    angle: Math.random() * 360,
+                    spin: Math.random() * 8 - 4
+                });
+            }
+        }
+
+        function drawConfetti() {
+            confetti.forEach(p => {
+                p.y += p.speedY;
+                p.x += p.speedX;
+                p.angle += p.spin;
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.angle * Math.PI) / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+
+                if (p.y > canvas.height) {
+                    p.y = -10;
+                    p.x = Math.random() * canvas.width;
+                }
+            });
+        }
+
+        // ==========================================
+        // ✨ المؤثرات البصرية العائمة (Floating FX)
+        // ==========================================
+        let popups = [];
+        function addPopup(x, y, text, color) {
+            popups.push({ x, y, text, color, opacity: 1, life: 30 });
+        }
+
+        function drawPopups() {
+            popups.forEach((p, index) => {
+                p.y -= 1.2;
+                p.opacity -= 0.03;
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = Math.max(0, p.opacity);
+                ctx.font = "bold 18px 'Segoe UI', Tahoma";
+                ctx.fillText(p.text, p.x, p.y);
+                ctx.globalAlpha = 1.0;
+
+                if (p.opacity <= 0) popups.splice(index, 1);
+            });
+        }
+
+        // ==========================================
+        // 🌌 خلفية حيوية (Vibrant Particles)
+        // ==========================================
+        const bgParticles = [];
+        for (let i = 0; i < 45; i++) {
+            bgParticles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 3 + 1,
+                speedY: Math.random() * 0.6 + 0.2,
+                color: Math.random() > 0.5 ? '#00f0ff' : '#ff007f',
+                opacity: Math.random() * 0.6 + 0.2
+            });
+        }
+
+        let gameState = "MENU";
+        let timer = 60;
+        let timerInterval = null;
+        let score = 0;
+
+        const player = {
+            x: 40,
+            y: 350,
+            width: 35,
+            height: 45,
+            vx: 0,
+            vy: 0,
+            speed: 6.5,
+            jumpPower: -12.5,
+            gravity: 0.5,
+            isJumping: false
+        };
+
+        const platforms = [
+            { x: 0, y: 410, width: 900, height: 40, color: '#00f0ff' },
+            { x: 80, y: 330, width: 120, height: 15, color: '#ff007f' },
+            { x: 250, y: 270, width: 130, height: 15, color: '#00ff88' },
+            { x: 430, y: 210, width: 140, height: 15, color: '#ffea00' },
+            { x: 620, y: 270, width: 130, height: 15, color: '#00f0ff' },
+            { x: 730, y: 330, width: 130, height: 15, color: '#ff007f' },
+            { x: 180, y: 160, width: 120, height: 15, color: '#a855f7' },
+            { x: 620, y: 160, width: 120, height: 15, color: '#00ff88' }
+        ];
+
+        let iotItems = [];
+        const initialIotItems = [
+            { x: 110, y: 295, symbol: "📡" },
+            { x: 290, y: 235, symbol: "📟" },
+            { x: 480, y: 175, symbol: "💡" },
+            { x: 660, y: 235, symbol: "🎛️" },
+            { x: 760, y: 295, symbol: "🔋" },
+            { x: 210, y: 125, symbol: "📷" },
+            { x: 650, y: 125, symbol: "🔒" },
+            { x: 40,  y: 375, symbol: "🌐" }
+        ];
+
+        let obstacles = [];
+        const initialObstacles = [
+            { x: 260, y: 250, width: 22, height: 22, vx: 1.0, minX: 250, maxX: 350, symbol: "👾" },
+            { x: 630, y: 250, width: 22, height: 22, vx: 1.0, minX: 620, maxX: 720, symbol: "👾" },
+            { x: 400, y: 390, width: 22, height: 22, vx: 1.2, minX: 250, maxX: 600, symbol: "⚠️" }
+        ];
+
+        const keys = { left: false, right: false, jump: false };
+
+        window.addEventListener("keydown", (e) => {
+            unlockAudio();
+            if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = true;
+            if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = true;
+            if (e.code === "ArrowUp" || e.code === "Space" || e.code === "KeyW") {
+                if (!keys.jump && !player.isJumping && gameState === "PLAYING") {
+                    playSound('jump');
+                }
+                keys.jump = true;
+            }
+        });
+
+        window.addEventListener("keyup", (e) => {
+            if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = false;
+            if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = false;
+            if (e.code === "ArrowUp" || e.code === "Space" || e.code === "KeyW") keys.jump = false;
+        });
+
+        function bindTouchBtn(btnId, keyName) {
+            const btn = document.getElementById(btnId);
+            const start = (e) => { 
+                e.preventDefault(); 
+                unlockAudio();
+                if (keyName === 'jump' && !keys.jump && !player.isJumping && gameState === "PLAYING") {
+                    playSound('jump');
+                }
+                keys[keyName] = true; 
+            };
+            const end = (e) => { e.preventDefault(); keys[keyName] = false; };
+
+            btn.addEventListener("touchstart", start);
+            btn.addEventListener("touchend", end);
+            btn.addEventListener("mousedown", start);
+            btn.addEventListener("mouseup", end);
+        }
+
+        bindTouchBtn("btnLeft", "left");
+        bindTouchBtn("btnRight", "right");
+        bindTouchBtn("btnJump", "jump");
+
+        startBtn.addEventListener("click", () => {
+            unlockAudio();
+            startGame();
+        });
+        restartBtn.addEventListener("click", () => {
+            unlockAudio();
+            startGame();
+        });
+
+        function resetGame() {
+            player.x = 40;
+            player.y = 350;
+            player.vx = 0;
+            player.vy = 0;
+            score = 0;
+            timer = 60;
+            popups = [];
+
+            iotItems = initialIotItems.map(item => ({ ...item, collected: false }));
+            obstacles = JSON.parse(JSON.stringify(initialObstacles));
+        }
+
+        function startGame() {
+            resetGame();
+            gameState = "PLAYING";
+            startScreen.classList.add("hidden");
+            endScreen.classList.add("hidden");
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameState === "PLAYING") {
+                    timer--;
+                    if (timer <= 0) {
+                        gameOver(false);
+                    }
+                }
+            }, 1000);
+        }
+
+        function gameOver(isWin) {
+            gameState = isWin ? "WIN" : "GAMEOVER";
+            clearInterval(timerInterval);
+
+            if (isWin) {
+                playSound('win');
+                createConfetti();
+                endTitle.innerText = "🎉 CONGRATULATIONS!";
+                endTitle.style.color = "#00ff88";
+                endTitle.style.textShadow = "0 0 20px #00ff88";
+                endMessage.innerHTML = `Awesome Job! You collected all <b>8 IoT devices</b> with <b>${timer}s</b> remaining!`;
+            } else {
+                playSound('lose');
+                endTitle.innerText = "💥 SYSTEM FAILURE!";
+                endTitle.style.color = "#ff007f";
+                endTitle.style.textShadow = "0 0 20px #ff007f";
+                endMessage.innerText = timer <= 0 ? "Time's up! The network deployment failed." : "Oops! Mario hit a system threat. Try again!";
+            }
+
+            endScreen.classList.remove("hidden");
+        }
+
+        function update() {
+            if (gameState !== "PLAYING" && gameState !== "WIN") return;
+
+            if (gameState === "PLAYING") {
+                if (keys.right) player.vx = player.speed;
+                else if (keys.left) player.vx = -player.speed;
+                else player.vx = 0;
+
+                if (keys.jump && !player.isJumping) {
+                    player.vy = player.jumpPower;
+                    player.isJumping = true;
+                }
+
+                player.vy += player.gravity;
+                player.x += player.vx;
+                player.y += player.vy;
+
+                if (player.x < 0) player.x = 0;
+                if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+                player.isJumping = true;
+                platforms.forEach(p => {
+                    if (
+                        player.x < p.x + p.width &&
+                        player.x + player.width > p.x &&
+                        player.y + player.height >= p.y &&
+                        player.y + player.height <= p.y + p.height + player.vy
+                    ) {
+                        player.y = p.y - player.height;
+                        player.vy = 0;
+                        player.isJumping = false;
+                    }
+                });
+
+                obstacles.forEach(obs => {
+                    obs.x += obs.vx;
+                    if (obs.x <= obs.minX || obs.x >= obs.maxX) {
+                        obs.vx *= -1;
+                    }
+
+                    if (
+                        player.x < obs.x + obs.width &&
+                        player.x + player.width > obs.x &&
+                        player.y < obs.y + obs.height &&
+                        player.y + player.height > obs.y
+                    ) {
+                        gameOver(false);
+                    }
+                });
+
+                let collectedCount = 0;
+                iotItems.forEach(item => {
+                    if (!item.collected) {
+                        if (
+                            player.x < item.x + 22 &&
+                            player.x + player.width > item.x &&
+                            player.y < item.y + 22 &&
+                            player.y + player.height > item.y
+                        ) {
+                            item.collected = true;
+                            score += 10;
+                            playSound('collect');
+                            addPopup(item.x, item.y, "+10 IoT", "#00ff88");
+                        }
+                    } else {
+                        collectedCount++;
+                    }
+                });
+
+                if (collectedCount === iotItems.length) {
+                    gameOver(true);
+                }
+            }
+        }
+
+        function drawBackground() {
+            // خلفية متدرجة وحيوية
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0a0f1d');
+            gradient.addColorStop(1, '#030712');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // شبكة النيون الخلفية
+            ctx.strokeStyle = "rgba(0, 240, 255, 0.08)";
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 45) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 45) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // الجسيمات المضيئة
+            bgParticles.forEach(p => {
+                p.y -= p.speedY;
+                if (p.y < 0) p.y = canvas.height;
+
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.opacity;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                ctx.globalAlpha = 1.0;
+            });
+        }
+
+        function draw() {
+            drawBackground();
+
+            // رسم المنصات مع ألوان النيون والتوهج
+            platforms.forEach(p => {
+                ctx.fillStyle = "#0f172a";
+                ctx.fillRect(p.x, p.y, p.width, p.height);
+
+                ctx.strokeStyle = p.color;
+                ctx.lineWidth = 2.5;
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = p.color;
+                ctx.strokeRect(p.x, p.y, p.width, p.height);
+                ctx.shadowBlur = 0;
+            });
+
+            // رسم الأجهزة والرموز
+            ctx.font = "24px Arial";
+            iotItems.forEach(item => {
+                if (!item.collected) {
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = "#00f0ff";
+                    ctx.fillText(item.symbol, item.x, item.y);
+                    ctx.shadowBlur = 0;
+                }
+            });
+
+            // رسم الأعداء
+            obstacles.forEach(obs => {
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = "#ff007f";
+                ctx.fillText(obs.symbol, obs.x, obs.y + 15);
+                ctx.shadowBlur = 0;
+            });
+
+            // رسم ماريو
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = "#00f0ff";
+            ctx.drawImage(marioImg, player.x, player.y, player.width, player.height);
+            ctx.shadowBlur = 0;
+
+            // رسم تأثير التفاعل عند الجمع (+10)
+            drawPopups();
+
+            // رسم أوراق الاحتفال عند الفوز
+            if (gameState === "WIN") {
+                drawConfetti();
+            }
+
+            // رسم شريط المعلومات العلوي (HUD)
+            ctx.fillStyle = "#00f0ff";
+            ctx.font = "bold 17px 'Segoe UI', Tahoma";
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = "#00f0ff";
+            ctx.fillText(`📡 Devices: ${score / 10}/${iotItems.length}`, 25, 35);
+
+            ctx.fillStyle = timer <= 15 ? "#ff007f" : "#00ff88";
+            ctx.shadowColor = timer <= 15 ? "#ff007f" : "#00ff88";
+            ctx.font = "bold 18px 'Segoe UI', Tahoma";
+            ctx.fillText(`⏱️ Time: ${timer}s`, 750, 35);
+            ctx.shadowBlur = 0;
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
