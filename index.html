@@ -122,7 +122,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(3, 7, 18, 0.92);
+            background: rgba(3, 7, 18, 0.94);
             backdrop-filter: blur(6px);
             display: flex;
             flex-direction: column;
@@ -141,7 +141,7 @@
         }
 
         .overlay h2 {
-            font-size: 2.3rem;
+            font-size: 2.1rem;
             margin-bottom: 12px;
             letter-spacing: 1px;
             animation: pulseTitle 1.5s infinite alternate ease-in-out;
@@ -153,28 +153,29 @@
         }
 
         .overlay p {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: #e5e7eb;
             max-width: 520px;
-            margin-bottom: 25px;
-            line-height: 1.6;
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
 
         .btn {
             background: linear-gradient(90deg, #00f0ff, #00ff88);
             color: #030712;
             border: none;
-            padding: 15px 40px;
-            font-size: 19px;
+            padding: 12px 32px;
+            font-size: 17px;
             font-weight: 800;
             border-radius: 30px;
             cursor: pointer;
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
             transition: all 0.25s ease;
+            margin: 6px;
         }
 
         .btn:hover {
-            transform: scale(1.08);
+            transform: scale(1.06);
             box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
         }
 
@@ -199,8 +200,21 @@
         <!-- Start Screen -->
         <div id="startScreen" class="overlay">
             <h2 style="color: #00f0ff; text-shadow: 0 0 15px #00f0ff;">Build the Ultimate IoT System!</h2>
-            <p>Help Labeeb collect all <b>8 IoT components</b> across the system before the timer runs out. Avoid system bugs 👾!</p>
+            <p>You have <b>3 Lives ❤️</b>. Collect all <b>8 IoT components</b> and avoid system bugs 👾. If you run out of lives, enter the IoT Store challenge to gather coins!</p>
             <button id="startBtn" class="btn">START ADVENTURE 🚀</button>
+        </div>
+
+        <!-- Shop & Challenge Screen -->
+        <div id="shopScreen" class="overlay hidden">
+            <h2 style="color: #ffea00; text-shadow: 0 0 15px #ffea00;">🏪 IoT System Store</h2>
+            <p>Your Balance: <b id="shopCoinsText" style="color:#00ff88; font-size:1.3rem;">0 🪙</b></p>
+            <p>Buy extra lives for <b>5 🪙</b> each or enter the hard challenge mini-game to earn more coins!</p>
+            
+            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+                <button id="buyLifeBtn" class="btn" style="background: linear-gradient(90deg, #ff007f, #ffea00);">BUY LIFE ❤️ (5 🪙)</button>
+                <button id="startMiniGameBtn" class="btn" style="background: linear-gradient(90deg, #a855f7, #00f0ff);">COIN CHALLENGE ⚡</button>
+            </div>
+            <button id="resumeMainBtn" class="btn" style="margin-top:15px; background: #374151; color:#fff;">RETURN TO GAME 🎮</button>
         </div>
 
         <!-- Win/Game Over Screen -->
@@ -227,17 +241,23 @@
         const ctx = canvas.getContext("2d");
 
         const startScreen = document.getElementById("startScreen");
+        const shopScreen = document.getElementById("shopScreen");
         const endScreen = document.getElementById("endScreen");
         const endTitle = document.getElementById("endTitle");
         const endMessage = document.getElementById("endMessage");
+        const shopCoinsText = document.getElementById("shopCoinsText");
+
         const startBtn = document.getElementById("startBtn");
         const restartBtn = document.getElementById("restartBtn");
+        const buyLifeBtn = document.getElementById("buyLifeBtn");
+        const startMiniGameBtn = document.getElementById("startMiniGameBtn");
+        const resumeMainBtn = document.getElementById("resumeMainBtn");
 
         const marioImg = new Image();
         marioImg.src = "robot.png";
 
         // ==========================================
-        // 🎵 محرك الأصوات المطور (Web Audio API)
+        // 🎵 Web Audio API Engine
         // ==========================================
         let audioCtx = null;
 
@@ -307,7 +327,7 @@
         }
 
         // ==========================================
-        // 🎉 أوراق الاحتفال الحركية (Confetti FX)
+        // 🎉 Confetti FX
         // ==========================================
         let confetti = [];
         function createConfetti() {
@@ -348,7 +368,7 @@
         }
 
         // ==========================================
-        // ✨ المؤثرات البصرية العائمة (Floating FX)
+        // ✨ Floating Text FX
         // ==========================================
         let popups = [];
         function addPopup(x, y, text, color) {
@@ -370,7 +390,7 @@
         }
 
         // ==========================================
-        // 🌌 خلفية حيوية (Vibrant Particles)
+        // 🌌 Background Particles
         // ==========================================
         const bgParticles = [];
         for (let i = 0; i < 45; i++) {
@@ -384,10 +404,18 @@
             });
         }
 
-        let gameState = "MENU";
+        // Game State Variables
+        let gameState = "MENU"; // MENU, PLAYING, SHOP, MINIGAME, WIN, GAMEOVER
         let timer = 60;
         let timerInterval = null;
         let score = 0;
+        let lives = 3;
+        let coins = 0;
+
+        // Mini Game Objects
+        let miniCoins = [];
+        let miniBugs = [];
+        let miniTimer = 20;
 
         const player = {
             x: 40,
@@ -432,7 +460,7 @@
             { x: 400, y: 390, width: 22, height: 22, vx: 1.2, minX: 250, maxX: 600, symbol: "⚠️" }
         ];
 
-        const keys = { left: false, right: false, jump: false };
+        const keys = { left: false, right: false, jump: false, up: false, down: false };
 
         window.addEventListener("keydown", (e) => {
             unlockAudio();
@@ -443,13 +471,19 @@
                     playSound('jump');
                 }
                 keys.jump = true;
+                keys.up = true;
             }
+            if (e.code === "ArrowDown" || e.code === "KeyS") keys.down = true;
         });
 
         window.addEventListener("keyup", (e) => {
             if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = false;
             if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = false;
-            if (e.code === "ArrowUp" || e.code === "Space" || e.code === "KeyW") keys.jump = false;
+            if (e.code === "ArrowUp" || e.code === "Space" || e.code === "KeyW") {
+                keys.jump = false;
+                keys.up = false;
+            }
+            if (e.code === "ArrowDown" || e.code === "KeyS") keys.down = false;
         });
 
         function bindTouchBtn(btnId, keyName) {
@@ -461,8 +495,13 @@
                     playSound('jump');
                 }
                 keys[keyName] = true; 
+                if(keyName === 'jump') keys.up = true;
             };
-            const end = (e) => { e.preventDefault(); keys[keyName] = false; };
+            const end = (e) => { 
+                e.preventDefault(); 
+                keys[keyName] = false; 
+                if(keyName === 'jump') keys.up = false;
+            };
 
             btn.addEventListener("touchstart", start);
             btn.addEventListener("touchend", end);
@@ -476,12 +515,54 @@
 
         startBtn.addEventListener("click", () => {
             unlockAudio();
+            lives = 3;
             startGame();
         });
+
         restartBtn.addEventListener("click", () => {
             unlockAudio();
+            lives = 3;
             startGame();
         });
+
+        // Store & Mini-Game UI Handlers
+        buyLifeBtn.addEventListener("click", () => {
+            if (coins >= 5) {
+                coins -= 5;
+                lives++;
+                playSound('collect');
+                updateShopUI();
+            } else {
+                alert("Not enough coins! Enter the challenge to get more 🪙");
+            }
+        });
+
+        startMiniGameBtn.addEventListener("click", () => {
+            startMiniGame();
+        });
+
+        resumeMainBtn.addEventListener("click", () => {
+            if (lives <= 0) {
+                alert("You must purchase at least 1 Life to continue the game! ❤️");
+                return;
+            }
+            shopScreen.classList.add("hidden");
+            gameState = "PLAYING";
+            player.x = 40;
+            player.y = 350;
+            startMainTimer();
+        });
+
+        function updateShopUI() {
+            shopCoinsText.innerText = `${coins} 🪙 (Current Lives: ${lives} ❤️)`;
+        }
+
+        function openShop() {
+            gameState = "SHOP";
+            clearInterval(timerInterval);
+            updateShopUI();
+            shopScreen.classList.remove("hidden");
+        }
 
         function resetGame() {
             player.x = 40;
@@ -496,12 +577,7 @@
             obstacles = JSON.parse(JSON.stringify(initialObstacles));
         }
 
-        function startGame() {
-            resetGame();
-            gameState = "PLAYING";
-            startScreen.classList.add("hidden");
-            endScreen.classList.add("hidden");
-
+        function startMainTimer() {
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 if (gameState === "PLAYING") {
@@ -511,6 +587,71 @@
                     }
                 }
             }, 1000);
+        }
+
+        function startGame() {
+            resetGame();
+            gameState = "PLAYING";
+            startScreen.classList.add("hidden");
+            endScreen.classList.add("hidden");
+            shopScreen.classList.add("hidden");
+
+            startMainTimer();
+        }
+
+        // ==========================================
+        // 🎮 IoT Challenge Mini-Game
+        // ==========================================
+        function startMiniGame() {
+            gameState = "MINIGAME";
+            shopScreen.classList.add("hidden");
+            miniTimer = 20;
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2;
+
+            // Generate coins
+            miniCoins = [];
+            for (let i = 0; i < 12; i++) {
+                miniCoins.push({
+                    x: Math.random() * (canvas.width - 60) + 30,
+                    y: Math.random() * (canvas.height - 60) + 30,
+                    size: 10,
+                    collected: false
+                });
+            }
+
+            // Generate fast tracking bugs
+            miniBugs = [];
+            for (let i = 0; i < 5; i++) {
+                miniBugs.push({
+                    x: Math.random() < 0.5 ? 20 : canvas.width - 20,
+                    y: Math.random() * canvas.height,
+                    speed: Math.random() * 2 + 2.5
+                });
+            }
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameState === "MINIGAME") {
+                    miniTimer--;
+                    if (miniTimer <= 0) {
+                        openShop();
+                    }
+                }
+            }, 1000);
+        }
+
+        function handleHit() {
+            lives--;
+            playSound('lose');
+            addPopup(player.x, player.y, "-1 ❤️", "#ff007f");
+
+            if (lives <= 0) {
+                openShop();
+            } else {
+                player.x = 40;
+                player.y = 350;
+            }
         }
 
         function gameOver(isWin) {
@@ -529,15 +670,13 @@
                 endTitle.innerText = "💥 SYSTEM FAILURE!";
                 endTitle.style.color = "#ff007f";
                 endTitle.style.textShadow = "0 0 20px #ff007f";
-                endMessage.innerText = timer <= 0 ? "Time's up! The network deployment failed." : "Oops! Mario hit a system threat. Try again!";
+                endMessage.innerText = timer <= 0 ? "Time's up! The network deployment failed." : "Oops! Labeeb hit a system threat. Try again!";
             }
 
             endScreen.classList.remove("hidden");
         }
 
         function update() {
-            if (gameState !== "PLAYING" && gameState !== "WIN") return;
-
             if (gameState === "PLAYING") {
                 if (keys.right) player.vx = player.speed;
                 else if (keys.left) player.vx = -player.speed;
@@ -581,7 +720,7 @@
                         player.y < obs.y + obs.height &&
                         player.y + player.height > obs.y
                     ) {
-                        gameOver(false);
+                        handleHit();
                     }
                 });
 
@@ -595,7 +734,7 @@
                             player.y + player.height > item.y
                         ) {
                             item.collected = true;
-                            score += 10;
+                            score += 10; // جمع أدوات الـ IoT فقط في اللعبة الرئيسية
                             playSound('collect');
                             addPopup(item.x, item.y, "+10 IoT", "#00ff88");
                         }
@@ -608,17 +747,49 @@
                     gameOver(true);
                 }
             }
+            else if (gameState === "MINIGAME") {
+                // Free movement controls in Mini-Game
+                if (keys.right && player.x < canvas.width - player.width) player.x += 5;
+                if (keys.left && player.x > 0) player.x -= 5;
+                if (keys.up && player.y > 0) player.y -= 5;
+                if (keys.down && player.y < canvas.height - player.height) player.y += 5;
+
+                // Collect coins exclusively in Mini-Game
+                miniCoins.forEach(coin => {
+                    if (!coin.collected) {
+                        let dist = Math.hypot((player.x + player.width/2) - coin.x, (player.y + player.height/2) - coin.y);
+                        if (dist < 25) {
+                            coin.collected = true;
+                            coins++;
+                            playSound('collect');
+                            addPopup(coin.x, coin.y, "+1 🪙", "#ffea00");
+                        }
+                    }
+                });
+
+                // Fast tracking bugs AI
+                miniBugs.forEach(bug => {
+                    let angle = Math.atan2((player.y + player.height/2) - bug.y, (player.x + player.width/2) - bug.x);
+                    bug.x += Math.cos(angle) * bug.speed;
+                    bug.y += Math.sin(angle) * bug.speed;
+
+                    let dist = Math.hypot((player.x + player.width/2) - bug.x, (player.y + player.height/2) - bug.y);
+                    if (dist < 20) {
+                        playSound('lose');
+                        openShop();
+                    }
+                });
+            }
         }
 
         function drawBackground() {
-            // خلفية متدرجة وحيوية
             const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
             gradient.addColorStop(0, '#0a0f1d');
             gradient.addColorStop(1, '#030712');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // شبكة النيون الخلفية
+            // Grid Lines
             ctx.strokeStyle = "rgba(0, 240, 255, 0.08)";
             ctx.lineWidth = 1;
             for (let x = 0; x < canvas.width; x += 45) {
@@ -634,7 +805,7 @@
                 ctx.stroke();
             }
 
-            // الجسيمات المضيئة
+            // Floating Particles
             bgParticles.forEach(p => {
                 p.y -= p.speedY;
                 if (p.y < 0) p.y = canvas.height;
@@ -649,64 +820,96 @@
         function draw() {
             drawBackground();
 
-            // رسم المنصات مع ألوان النيون والتوهج
-            platforms.forEach(p => {
-                ctx.fillStyle = "#0f172a";
-                ctx.fillRect(p.x, p.y, p.width, p.height);
+            if (gameState === "PLAYING" || gameState === "WIN" || gameState === "GAMEOVER") {
+                // Draw platforms
+                platforms.forEach(p => {
+                    ctx.fillStyle = "#0f172a";
+                    ctx.fillRect(p.x, p.y, p.width, p.height);
 
-                ctx.strokeStyle = p.color;
-                ctx.lineWidth = 2.5;
-                ctx.shadowBlur = 12;
-                ctx.shadowColor = p.color;
-                ctx.strokeRect(p.x, p.y, p.width, p.height);
-                ctx.shadowBlur = 0;
-            });
-
-            // رسم الأجهزة والرموز
-            ctx.font = "24px Arial";
-            iotItems.forEach(item => {
-                if (!item.collected) {
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = "#00f0ff";
-                    ctx.fillText(item.symbol, item.x, item.y);
+                    ctx.strokeStyle = p.color;
+                    ctx.lineWidth = 2.5;
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = p.color;
+                    ctx.strokeRect(p.x, p.y, p.width, p.height);
                     ctx.shadowBlur = 0;
-                }
-            });
+                });
 
-            // رسم الأعداء
-            obstacles.forEach(obs => {
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = "#ff007f";
-                ctx.fillText(obs.symbol, obs.x, obs.y + 15);
+                // Draw IoT devices
+                ctx.font = "24px Arial";
+                iotItems.forEach(item => {
+                    if (!item.collected) {
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = "#00f0ff";
+                        ctx.fillText(item.symbol, item.x, item.y);
+                        ctx.shadowBlur = 0;
+                    }
+                });
+
+                // Draw obstacles
+                obstacles.forEach(obs => {
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = "#ff007f";
+                    ctx.fillText(obs.symbol, obs.x, obs.y + 15);
+                    ctx.shadowBlur = 0;
+                });
+
+                // Draw Labeeb / Player
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = "#00f0ff";
+                ctx.drawImage(marioImg, player.x, player.y, player.width, player.height);
                 ctx.shadowBlur = 0;
-            });
 
-            // رسم ماريو
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = "#00f0ff";
-            ctx.drawImage(marioImg, player.x, player.y, player.width, player.height);
-            ctx.shadowBlur = 0;
+                // Win particles
+                if (gameState === "WIN") {
+                    drawConfetti();
+                }
 
-            // رسم تأثير التفاعل عند الجمع (+10)
-            drawPopups();
+                // HUD Main Game
+                ctx.fillStyle = "#00f0ff";
+                ctx.font = "bold 17px 'Segoe UI', Tahoma";
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = "#00f0ff";
+                ctx.fillText(`📡 Devices: ${score / 10}/${iotItems.length}  |  ❤️ Lives: ${lives}  |  🪙 Coins: ${coins}`, 25, 35);
 
-            // رسم أوراق الاحتفال عند الفوز
-            if (gameState === "WIN") {
-                drawConfetti();
+                ctx.fillStyle = timer <= 15 ? "#ff007f" : "#00ff88";
+                ctx.shadowColor = timer <= 15 ? "#ff007f" : "#00ff88";
+                ctx.font = "bold 18px 'Segoe UI', Tahoma";
+                ctx.fillText(`⏱️ Time: ${timer}s`, 750, 35);
+                ctx.shadowBlur = 0;
+            }
+            else if (gameState === "MINIGAME") {
+                // Draw Coins
+                miniCoins.forEach(coin => {
+                    if (!coin.collected) {
+                        ctx.fillStyle = "#ffea00";
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = "#ffea00";
+                        ctx.beginPath();
+                        ctx.arc(coin.x, coin.y, coin.size, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+                });
+
+                // Draw Tracking Bugs 👾
+                ctx.font = "24px Arial";
+                miniBugs.forEach(bug => {
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = "#ff007f";
+                    ctx.fillText("👾", bug.x - 12, bug.y + 12);
+                    ctx.shadowBlur = 0;
+                });
+
+                // Draw Player
+                ctx.drawImage(marioImg, player.x, player.y, player.width, player.height);
+
+                // HUD Mini-Game
+                ctx.fillStyle = "#ffea00";
+                ctx.font = "bold 18px 'Segoe UI', Tahoma";
+                ctx.fillText(`🪙 Coins: ${coins}  |  ⏱️ Challenge Time: ${miniTimer}s`, 25, 35);
             }
 
-            // رسم شريط المعلومات العلوي (HUD)
-            ctx.fillStyle = "#00f0ff";
-            ctx.font = "bold 17px 'Segoe UI', Tahoma";
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = "#00f0ff";
-            ctx.fillText(`📡 Devices: ${score / 10}/${iotItems.length}`, 25, 35);
-
-            ctx.fillStyle = timer <= 15 ? "#ff007f" : "#00ff88";
-            ctx.shadowColor = timer <= 15 ? "#ff007f" : "#00ff88";
-            ctx.font = "bold 18px 'Segoe UI', Tahoma";
-            ctx.fillText(`⏱️ Time: ${timer}s`, 750, 35);
-            ctx.shadowBlur = 0;
+            drawPopups();
         }
 
         function gameLoop() {
