@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Master Labeeb - Bootcamp Challenge</title>
+    <title>Master Labeeb - Bootcamp Challenge Pro</title>
     <style>
         * {
             box-sizing: border-box;
@@ -151,13 +151,18 @@
             background: linear-gradient(90deg, #00f0ff, #00ff88);
             color: #030712;
             border: none;
-            padding: 12px 30px;
-            font-size: 16px;
+            padding: 12px 25px;
+            font-size: 15px;
             font-weight: 800;
             border-radius: 30px;
             cursor: pointer;
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
             margin: 6px;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
         }
 
         .trophy-box {
@@ -173,6 +178,30 @@
             display: none !important;
         }
 
+        .workshop-cards {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .card {
+            background: #0f172a;
+            border: 2px solid #00f0ff;
+            border-radius: 12px;
+            padding: 15px;
+            width: 200px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
         @media (min-width: 1024px) and (hover: hover) {
             #touch-controls {
                 display: none;
@@ -182,7 +211,7 @@
 </head>
 <body>
 
-    <h1 id="mainTitle">🤖 Labeeb Bootcamp Adventure</h1>
+    <h1 id="mainTitle">🤖 Labeeb Bootcamp Pro</h1>
     
     <div id="game-container">
         <canvas id="gameCanvas" width="900" height="450"></canvas>
@@ -192,26 +221,54 @@
             <h2 style="color: #00f0ff;">Welcome Hero! 🚀</h2>
             <p>Enter your name to register on the Bootcamp Leaders Board:</p>
             <input type="text" id="playerNameInput" placeholder="Enter Your Name..." maxlength="20">
-            <button id="saveNameBtn" class="btn">CONTINUE TO WORKSHOP 1 ⚡</button>
+            <button id="saveNameBtn" class="btn">ENTER BOOTCAMP HUB ⚡</button>
         </div>
 
-        <!-- Stage 1 Victory & Trophy Screen -->
+        <!-- Workshop Selection Menu (Hub) -->
+        <div id="hubScreen" class="overlay hidden">
+            <h2 style="color: #00f0ff;">🎓 Choose Your Workshop</h2>
+            <p>Select a standalone workshop or visit the Bootcamp Store:</p>
+
+            <div class="workshop-cards">
+                <div class="card" id="selectStage1">
+                    <div style="font-size: 2.5rem;">📡</div>
+                    <h3 style="color:#00f0ff; margin: 8px 0;">Workshop 1</h3>
+                    <p style="font-size: 0.85rem; color:#aaa;">IoT Hardware & Sensors</p>
+                </div>
+                <div class="card" id="selectStage2">
+                    <div style="font-size: 2.5rem;">🧠</div>
+                    <h3 style="color:#a855f7; margin: 8px 0;">Workshop 2 (Hard)</h3>
+                    <p style="font-size: 0.85rem; color:#aaa;">Deep Learning Memory Test</p>
+                </div>
+                <div class="card" id="selectStage3">
+                    <div style="font-size: 2.5rem;">🎬</div>
+                    <h3 style="color:#ff007f; margin: 8px 0;">Workshop 3 (Pro)</h3>
+                    <p style="font-size: 0.85rem; color:#aaa;">AI Video Pipeline (12 Frames)</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button id="openStoreBtn" class="btn" style="background: linear-gradient(90deg, #ffea00, #ff007f);">🏪 BOOTCAMP STORE (COINS & LIVES)</button>
+            </div>
+        </div>
+
+        <!-- Victory Screen -->
         <div id="trophyScreen" class="overlay hidden">
-            <h2 style="color: #ffea00;">🏆 WORKSHOP COMPLETED! 🏆</h2>
+            <h2 style="color: #ffea00;">🏆 WORKSHOP MASTERED! 🏆</h2>
             <div class="trophy-box">
                 <div style="font-size: 4rem;">🏆</div>
                 <h3 id="trophyPlayerName" style="color: #00f0ff; margin: 5px 0; font-size: 1.6rem;">Player Name</h3>
-                <p id="trophyWorkshopName" style="color: #00ff88; font-weight: bold; margin: 5px 0;">Master of Workshop 1: Hardware & Sensors</p>
+                <p id="trophyDesc" style="color: #00ff88; font-weight: bold; margin: 5px 0;">Workshop Mastered!</p>
             </div>
-            <p>You have earned your first Bootcamp Certificate!</p>
-            <button id="startStage2Btn" class="btn" style="background: linear-gradient(90deg, #a855f7, #00f0ff);">ENTER WORKSHOP 2 (CLOUD GRID) ☁️</button>
+            <button id="nextStageBtn" class="btn" style="background: linear-gradient(90deg, #a855f7, #00f0ff);">PROCEED TO NEXT WORKSHOP 🧠</button>
+            <button id="backToHubBtn1" class="btn" style="background: #374151; color:#fff;">RETURN TO HUB 🏠</button>
         </div>
 
         <!-- Shop Screen -->
         <div id="shopScreen" class="overlay hidden">
             <h2 style="color: #ffea00;">🏪 Bootcamp Store & Coins</h2>
             <p>Your Balance: <b id="shopCoinsText" style="color:#00ff88; font-size:1.3rem;">0 🪙</b></p>
-            <p>Buy extra lives for <b>5 🪙</b> each or enter the Coin Challenge mini-game!</p>
+            <p>Buy extra lives for <b>5 🪙</b> each or play the Coin Challenge!</p>
             
             <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
                 <button id="buyLifeBtn" class="btn" style="background: linear-gradient(90deg, #ff007f, #ffea00);">BUY LIFE ❤️ (5 🪙)</button>
@@ -224,7 +281,8 @@
         <div id="endScreen" class="overlay hidden">
             <h2 id="endTitle">CONGRATULATIONS!</h2>
             <p id="endMessage">Bootcamp Finished Successfully!</p>
-            <button id="restartBtn" class="btn">PLAY AGAIN 🔄</button>
+            <button id="restartBtn" class="btn">RETRY WORKSHOP 🔄</button>
+            <button id="backToHubBtn2" class="btn" style="background: #374151; color:#fff;">MAIN HUB 🏠</button>
         </div>
     </div>
 
@@ -243,19 +301,26 @@
         const ctx = canvas.getContext("2d");
 
         const nameScreen = document.getElementById("nameScreen");
+        const hubScreen = document.getElementById("hubScreen");
         const trophyScreen = document.getElementById("trophyScreen");
         const shopScreen = document.getElementById("shopScreen");
         const endScreen = document.getElementById("endScreen");
         
         const playerNameInput = document.getElementById("playerNameInput");
         const trophyPlayerName = document.getElementById("trophyPlayerName");
-        const trophyWorkshopName = document.getElementById("trophyWorkshopName");
+        const trophyDesc = document.getElementById("trophyDesc");
         const mainTitle = document.getElementById("mainTitle");
         const shopCoinsText = document.getElementById("shopCoinsText");
 
         const saveNameBtn = document.getElementById("saveNameBtn");
-        const startStage2Btn = document.getElementById("startStage2Btn");
+        const selectStage1 = document.getElementById("selectStage1");
+        const selectStage2 = document.getElementById("selectStage2");
+        const selectStage3 = document.getElementById("selectStage3");
+        const openStoreBtn = document.getElementById("openStoreBtn");
+        const nextStageBtn = document.getElementById("nextStageBtn");
         const restartBtn = document.getElementById("restartBtn");
+        const backToHubBtn1 = document.getElementById("backToHubBtn1");
+        const backToHubBtn2 = document.getElementById("backToHubBtn2");
         const buyLifeBtn = document.getElementById("buyLifeBtn");
         const startMiniGameBtn = document.getElementById("startMiniGameBtn");
         const resumeMainBtn = document.getElementById("resumeMainBtn");
@@ -296,23 +361,45 @@
         }
 
         let playerName = "Hero";
-        let gameState = "NAME"; // NAME, PLAYING, TROPHY, SHOP, MINIGAME, WIN, GAMEOVER
+        let gameState = "NAME"; 
+        let previousGameState = "HUB"; 
         let currentStage = 1;
-        let timer = 60;
+        let timer = 75;
         let timerInterval = null;
+        
         let lives = 3;
         let coins = 0;
+
+        // نظام تنبيهات شاشة اللعبة السلس دون تجميد المدخلات
+        let toastMessage = "";
+        let toastTimer = 0;
+
+        function showToast(msg) {
+            toastMessage = msg;
+            toastTimer = 110; // يظهر التنبيه لقرابة ثانيتين
+        }
 
         let miniCoins = [];
         let miniBugs = [];
         let miniTimer = 20;
 
+        const keys = { left: false, right: false, jump: false, up: false, down: false };
+
+        function resetKeys() {
+            keys.left = false;
+            keys.right = false;
+            keys.jump = false;
+            keys.up = false;
+            keys.down = false;
+        }
+
         const player = {
             x: 40, y: 350, width: 35, height: 45,
-            vx: 0, vy: 0, speed: 6.5, jumpPower: -12.5, gravity: 0.5, isJumping: false
+            vx: 0, vy: 0, speed: 6.5, jumpPower: -12.5, gravity: 0.5, isJumping: false,
+            invulnerableTimer: 0
         };
 
-        // --- STAGE 1 (Platformer: IoT Hardware) ---
+        // --- STAGE 1 (IoT Hardware) ---
         const stage1Platforms = [
             { x: 0, y: 410, width: 900, height: 40, color: '#00f0ff' },
             { x: 80, y: 330, width: 120, height: 15, color: '#ff007f' },
@@ -338,22 +425,51 @@
             { x: 630, y: 250, width: 22, height: 22, vx: 1.2, minX: 620, maxX: 720, symbol: "👾" }
         ];
 
-        // --- STAGE 2 (Top-Down Cloud Network Grid: Different Gameplay!) ---
+        // --- STAGE 2 (Deep Learning Architecture Test) ---
+        let nextRequiredOrder = 1;
         let stage2Nodes = [
-            { x: 150, y: 100, label: "Cloud Server", symbol: "☁️", connected: false },
-            { x: 450, y: 100, label: "API Gateway", symbol: "⚡", connected: false },
-            { x: 750, y: 100, label: "Database", symbol: "💾", connected: false },
-            { x: 250, y: 300, label: "MQTT Broker", symbol: "📡", connected: false },
-            { x: 650, y: 300, label: "Dashboard UI", symbol: "📊", connected: false }
+            { id: 1, order: 1, x: 100, y: 120, label: "Input Data", symbol: "📥", connected: false },
+            { id: 2, order: 2, x: 260, y: 340, label: "Conv2D Layer", symbol: "🔍", connected: false },
+            { id: 3, order: 3, x: 450, y: 140, label: "Max Pooling", symbol: "⚡", connected: false },
+            { id: 4, order: 4, x: 620, y: 340, label: "BatchNorm", symbol: "⚖️", connected: false },
+            { id: 5, order: 5, x: 780, y: 160, label: "Dense / Weights", symbol: "🧠", connected: false },
+            { id: 6, order: 6, x: 450, y: 380, label: "Softmax Output", symbol: "🎯", connected: false }
         ];
 
         let stage2SecurityBugs = [
-            { x: 300, y: 150, vx: 2, vy: 1.5 },
-            { x: 500, y: 250, vx: -1.5, vy: 2 },
-            { x: 400, y: 350, vx: 2.5, vy: -1 }
+            { x: 200, y: 200, vx: 3.2, vy: 2.5 },
+            { x: 550, y: 220, vx: -2.8, vy: 3.0 },
+            { x: 700, y: 280, vx: 3.5, vy: -2.2 },
+            { x: 350, y: 100, vx: -3.0, vy: 2.8 }
         ];
 
-        const keys = { left: false, right: false, jump: false, up: false, down: false };
+        let vanishingZone = { x: 380, y: 220, width: 140, height: 90, active: true };
+
+        // --- STAGE 3 (AI Video Creator Pro) ---
+        let stage3Score = 0;
+        const targetStage3Score = 12;
+        let stage3PromptsList = [
+            "Prompt: Cinematic Cyberpunk Scene 🎥",
+            "Prompt: Photorealistic AI Drone View 🚁",
+            "Prompt: Hyper-Detailed 3D Creature 🐉",
+            "Prompt: Ultra-HD Sci-Fi Cityscape 🌃",
+            "Prompt: Slow-Motion Water Simulation 🌊"
+        ];
+        let currentPromptText = stage3PromptsList[0];
+        let fallingItems = [];
+
+        function spawnStage3Item() {
+            const r = Math.random();
+            let isBad = r < 0.45;
+            fallingItems.push({
+                x: Math.random() * (canvas.width - 60) + 30,
+                y: -20,
+                speed: Math.random() * 2.5 + 3.2,
+                drift: (Math.random() - 0.5) * 1.5,
+                isBad: isBad,
+                symbol: isBad ? (Math.random() < 0.5 ? "💥" : "⚠️") : "🎬"
+            });
+        }
 
         window.addEventListener("keydown", (e) => {
             unlockAudio();
@@ -392,49 +508,100 @@
             const val = playerNameInput.value.trim();
             if (val) playerName = val;
             nameScreen.classList.add("hidden");
-            currentStage = 1; lives = 3; loadStage(1); startGame();
+            openHub();
         });
 
-        startStage2Btn.addEventListener("click", () => {
+        function openHub() {
+            gameState = "HUB";
+            clearInterval(timerInterval);
+            resetKeys();
+            trophyScreen.classList.add("hidden");
+            endScreen.classList.add("hidden");
+            shopScreen.classList.add("hidden");
+            hubScreen.classList.remove("hidden");
+            mainTitle.innerText = "🤖 Labeeb Bootcamp Pro";
+        }
+
+        selectStage1.addEventListener("click", () => { hubScreen.classList.add("hidden"); resetStageProgress(1); loadStage(1); startGame(); });
+        selectStage2.addEventListener("click", () => { hubScreen.classList.add("hidden"); resetStageProgress(2); loadStage(2); startGame(); });
+        selectStage3.addEventListener("click", () => { hubScreen.classList.add("hidden"); resetStageProgress(3); loadStage(3); startGame(); });
+        openStoreBtn.addEventListener("click", () => { openShop(); });
+        backToHubBtn1.addEventListener("click", () => openHub());
+        backToHubBtn2.addEventListener("click", () => openHub());
+
+        nextStageBtn.addEventListener("click", () => {
             unlockAudio(); trophyScreen.classList.add("hidden");
-            currentStage = 2; loadStage(2); startGame();
+            let nextStage = currentStage + 1;
+            if (nextStage > 3) openHub();
+            else { resetStageProgress(nextStage); loadStage(nextStage); startGame(); }
         });
 
         restartBtn.addEventListener("click", () => {
-            unlockAudio(); lives = 3; currentStage = 1; loadStage(1); startGame();
+            unlockAudio(); resetStageProgress(currentStage); loadStage(currentStage); startGame();
         });
 
         buyLifeBtn.addEventListener("click", () => {
             if (coins >= 5) {
                 coins -= 5; lives++; playSound('collect'); updateShopUI();
-            } else { alert("Not enough coins! Earn more in Coin Challenge 🪙"); }
+            } else { showToast("Not enough coins! Earn more in Challenge 🪙"); }
         });
 
         startMiniGameBtn.addEventListener("click", () => startMiniGame());
 
         resumeMainBtn.addEventListener("click", () => {
-            if (lives <= 0) { alert("Purchase at least 1 Life to continue! ❤️"); return; }
-            shopScreen.classList.add("hidden"); gameState = "PLAYING";
-            player.x = 40; player.y = 350; startMainTimer();
+            if (lives <= 0) { showToast("Purchase at least 1 Life to continue! ❤️"); return; }
+            shopScreen.classList.add("hidden");
+            resetKeys();
+            if (previousGameState === "PLAYING") {
+                gameState = "PLAYING";
+                startMainTimer();
+            } else {
+                openHub();
+            }
         });
 
         function updateShopUI() { shopCoinsText.innerText = `${coins} 🪙 (Lives: ${lives} ❤️)`; }
 
         function openShop() {
-            gameState = "SHOP"; clearInterval(timerInterval);
-            updateShopUI(); shopScreen.classList.remove("hidden");
+            if (gameState !== "SHOP" && gameState !== "MINIGAME") {
+                previousGameState = gameState;
+            }
+            gameState = "SHOP"; 
+            clearInterval(timerInterval);
+            resetKeys();
+            updateShopUI(); 
+            shopScreen.classList.remove("hidden");
+        }
+
+        function resetStageProgress(stageNum) {
+            if (stageNum === 1) {
+                stage1Items.forEach(i => i.collected = false);
+            } else if (stageNum === 2) {
+                nextRequiredOrder = 1;
+                stage2Nodes.forEach(n => n.connected = false);
+            } else if (stageNum === 3) {
+                stage3Score = 0;
+                fallingItems = [];
+            }
         }
 
         function loadStage(stageNum) {
-            timer = 60;
+            currentStage = stageNum;
+            timer = stageNum === 3 ? 75 : 60;
+            resetKeys();
+            player.vx = 0; player.vy = 0;
+            player.invulnerableTimer = 60; // ثانية حماية عند البدء
+            
             if (stageNum === 1) {
                 mainTitle.innerText = "📡 Workshop 1: IoT Hardware & Sensors";
                 player.x = 40; player.y = 350;
-                stage1Items.forEach(i => i.collected = false);
-            } else {
-                mainTitle.innerText = "☁️ Workshop 2: Cloud Dashboard & Automation Grid";
-                player.x = 450; player.y = 225; // سنتر الشاشة في النمط الشبكي
-                stage2Nodes.forEach(n => n.connected = false);
+            } else if (stageNum === 2) {
+                mainTitle.innerText = "🧠 Workshop 2: Deep Learning Architecture Test";
+                player.x = 40; player.y = 100;
+            } else if (stageNum === 3) {
+                mainTitle.innerText = "🎬 Workshop 3: AI Video Creator Pro (12 Frames Target)";
+                player.x = canvas.width / 2 - 20; player.y = 360;
+                currentPromptText = stage3PromptsList[Math.floor(Math.random() * stage3PromptsList.length)];
             }
         }
 
@@ -443,13 +610,22 @@
             timerInterval = setInterval(() => {
                 if (gameState === "PLAYING") {
                     timer--;
+                    if (currentStage === 3) {
+                        if (Math.random() < 0.8) spawnStage3Item();
+                    }
                     if (timer <= 0) gameOver(false);
                 }
             }, 1000);
         }
 
         function startGame() {
+            if (lives <= 0) {
+                openShop();
+                showToast("You need at least 1 Life! Visit Store ❤️");
+                return;
+            }
             gameState = "PLAYING";
+            resetKeys();
             endScreen.classList.add("hidden");
             shopScreen.classList.add("hidden");
             trophyScreen.classList.add("hidden");
@@ -458,7 +634,9 @@
 
         function startMiniGame() {
             gameState = "MINIGAME"; shopScreen.classList.add("hidden"); miniTimer = 20;
+            resetKeys();
             player.x = canvas.width / 2; player.y = canvas.height / 2;
+            player.vx = 0; player.vy = 0;
             miniCoins = [];
             for (let i = 0; i < 12; i++) {
                 miniCoins.push({ x: Math.random() * (canvas.width - 60) + 30, y: Math.random() * (canvas.height - 60) + 30, collected: false });
@@ -476,39 +654,64 @@
             }, 1000);
         }
 
-        function handleHit() {
+        function handleHit(msg) {
+            if (player.invulnerableTimer > 0) return; // حماية مؤقتة لمنع التكرار الشديد
+
             lives--; playSound('lose');
-            if (lives <= 0) openShop();
-            else { player.x = currentStage === 1 ? 40 : 450; player.y = currentStage === 1 ? 350 : 225; }
+            if (msg) showToast(msg);
+            
+            resetKeys();
+            player.vx = 0; player.vy = 0;
+            player.invulnerableTimer = 60; // ثانية حماية بعد التضرر
+
+            // إرجاع اللاعب لموقعه الآمن دون تصفير الإنجاز
+            player.x = currentStage === 1 ? 40 : (currentStage === 2 ? 40 : canvas.width / 2 - 20);
+            player.y = currentStage === 1 ? 350 : (currentStage === 2 ? 100 : 360);
+
+            if (lives <= 0) {
+                openShop();
+            }
         }
 
         function showTrophyScreen() {
             clearInterval(timerInterval);
             gameState = "TROPHY";
+            resetKeys();
             trophyPlayerName.innerText = playerName;
-            trophyWorkshopName.innerText = "Master of Workshop 1: Hardware & Sensors";
+            if (currentStage === 1) trophyDesc.innerText = "Master of Workshop 1: Hardware & Sensors";
+            else if (currentStage === 2) trophyDesc.innerText = "Master of Workshop 2: Deep Learning Neural Architecture";
+            else if (currentStage === 3) trophyDesc.innerText = "Master of Workshop 3: AI Video Generation & Prompt Pro";
+            
+            if(currentStage === 3) {
+                nextStageBtn.style.display = "none";
+            } else {
+                nextStageBtn.style.display = "inline-block";
+            }
             trophyScreen.classList.remove("hidden");
         }
 
         function gameOver(isWin) {
             gameState = isWin ? "WIN" : "GAMEOVER"; clearInterval(timerInterval);
+            resetKeys();
             if (isWin) {
-                endTitle.innerText = `🏆 BOOTCAMP GRADUATE: ${playerName.toUpperCase()}!`;
+                endTitle.innerText = `🏆 BOOTCAMP GRADUATE PRO: ${playerName.toUpperCase()}!`;
                 endTitle.style.color = "#00ff88";
-                endMessage.innerHTML = `Congratulations <b>${playerName}</b>!<br>You completed both <b>IoT Hardware</b> & <b>Cloud Automation</b> workshops!`;
+                endMessage.innerHTML = `Awesome Job <b>${playerName}</b>!<br>You mastered Deep Learning Architecture & AI Video Pipeline!`;
             } else {
                 playSound('lose');
                 endTitle.innerText = "💥 SYSTEM FAILURE!";
                 endTitle.style.color = "#ff007f";
-                endMessage.innerText = timer <= 0 ? "Time's up!" : "Security breach encountered!";
+                endMessage.innerText = timer <= 0 ? "Time limit exceeded!" : "Out of lives!";
             }
             endScreen.classList.remove("hidden");
         }
 
         function update() {
+            if (player.invulnerableTimer > 0) player.invulnerableTimer--;
+            if (toastTimer > 0) toastTimer--;
+
             if (gameState === "PLAYING") {
                 if (currentStage === 1) {
-                    // Stage 1 Physics (Platformer)
                     if (keys.right) player.vx = player.speed;
                     else if (keys.left) player.vx = -player.speed;
                     else player.vx = 0;
@@ -534,7 +737,7 @@
                     stage1Obstacles.forEach(obs => {
                         obs.x += obs.vx;
                         if (obs.x <= obs.minX || obs.x >= obs.maxX) obs.vx *= -1;
-                        if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y < obs.y + obs.height && player.y + player.height > obs.y) handleHit();
+                        if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y < obs.y + obs.height && player.y + player.height > obs.y) handleHit("Hit Enemy Bug! 👾");
                     });
 
                     let collectedCount = 0;
@@ -549,31 +752,76 @@
                     if (collectedCount === stage1Items.length) showTrophyScreen();
 
                 } else if (currentStage === 2) {
-                    // Stage 2 Physics (Top-Down Network Wiring Grid)
-                    if (keys.right && player.x < canvas.width - player.width) player.x += 5;
-                    if (keys.left && player.x > 0) player.x -= 5;
-                    if (keys.up && player.y > 0) player.y -= 5;
-                    if (keys.down && player.y < canvas.height - player.height) player.y += 5;
+                    if (keys.right && player.x < canvas.width - player.width) player.x += 6;
+                    if (keys.left && player.x > 0) player.x -= 6;
+                    if (keys.up && player.y > 0) player.y -= 6;
+                    if (keys.down && player.y < canvas.height - player.height) player.y += 6;
+
+                    if (
+                        player.x < vanishingZone.x + vanishingZone.width &&
+                        player.x + player.width > vanishingZone.x &&
+                        player.y < vanishingZone.y + vanishingZone.height &&
+                        player.y + player.height > vanishingZone.y
+                    ) {
+                        handleHit("⚠️ Vanishing Gradient Trap!");
+                    }
 
                     stage2SecurityBugs.forEach(bug => {
                         bug.x += bug.vx; bug.y += bug.vy;
-                        if (bug.x <= 50 || bug.x >= canvas.width - 50) bug.vx *= -1;
-                        if (bug.y <= 50 || bug.y >= canvas.height - 50) bug.vy *= -1;
+                        if (bug.x <= 30 || bug.x >= canvas.width - 30) bug.vx *= -1;
+                        if (bug.y <= 30 || bug.y >= canvas.height - 30) bug.vy *= -1;
 
                         let dist = Math.hypot((player.x + player.width/2) - bug.x, (player.y + player.height/2) - bug.y);
-                        if (dist < 22) handleHit();
+                        if (dist < 22) handleHit("Attacked by Model Overfitting Virus! 👾");
                     });
 
                     let connectedCount = 0;
                     stage2Nodes.forEach(node => {
                         let dist = Math.hypot((player.x + player.width/2) - node.x, (player.y + player.height/2) - node.y);
-                        if (dist < 35 && !node.connected) {
-                            node.connected = true; playSound('collect');
+                        if (dist < 35) {
+                            if (!node.connected) {
+                                if (node.order === nextRequiredOrder) {
+                                    node.connected = true; 
+                                    nextRequiredOrder++;
+                                    playSound('collect');
+                                } else {
+                                    handleHit(`⚠️ Wrong Neural Layer Sequence!`);
+                                }
+                            }
                         }
                         if (node.connected) connectedCount++;
                     });
 
-                    if (connectedCount === stage2Nodes.length) gameOver(true);
+                    if (connectedCount === stage2Nodes.length) showTrophyScreen();
+
+                } else if (currentStage === 3) {
+                    if (keys.right && player.x < canvas.width - player.width) player.x += 7.5;
+                    if (keys.left && player.x > 0) player.x -= 7.5;
+
+                    for (let i = fallingItems.length - 1; i >= 0; i--) {
+                        let item = fallingItems[i];
+                        item.y += item.speed;
+                        item.x += item.drift;
+
+                        let dist = Math.hypot((player.x + player.width/2) - item.x, (player.y + player.height/2) - item.y);
+                        if (dist < 28) {
+                            if (item.isBad) {
+                                handleHit("Caught Prompt Hallucination Noise! 💥");
+                            } else {
+                                stage3Score++;
+                                playSound('collect');
+                                currentPromptText = stage3PromptsList[Math.floor(Math.random() * stage3PromptsList.length)];
+                            }
+                            fallingItems.splice(i, 1);
+                            continue;
+                        }
+
+                        if (item.y > canvas.height + 20) {
+                            fallingItems.splice(i, 1);
+                        }
+                    }
+
+                    if (stage3Score >= targetStage3Score) gameOver(true);
                 }
             }
             else if (gameState === "MINIGAME") {
@@ -601,9 +849,8 @@
         function draw() {
             ctx.fillStyle = '#030712'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            if (gameState === "PLAYING" || gameState === "WIN" || gameState === "GAMEOVER") {
+            if (gameState === "PLAYING" || gameState === "WIN" || gameState === "GAMEOVER" || gameState === "SHOP") {
                 if (currentStage === 1) {
-                    // Draw Stage 1 (Platformer)
                     stage1Platforms.forEach(p => {
                         ctx.fillStyle = "#0f172a"; ctx.fillRect(p.x, p.y, p.width, p.height);
                         ctx.strokeStyle = p.color; ctx.lineWidth = 2.5; ctx.strokeRect(p.x, p.y, p.width, p.height);
@@ -613,37 +860,68 @@
                     stage1Obstacles.forEach(obs => ctx.fillText(obs.symbol, obs.x, obs.y + 15));
 
                 } else if (currentStage === 2) {
-                    // Draw Stage 2 (Network Grid)
-                    ctx.strokeStyle = "rgba(0, 240, 255, 0.15)"; ctx.lineWidth = 1;
+                    ctx.strokeStyle = "rgba(168, 85, 247, 0.15)"; ctx.lineWidth = 1;
                     for (let x = 0; x < canvas.width; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
                     for (let y = 0; y < canvas.height; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
 
-                    // Draw Network Connections
-                    stage2Nodes.forEach(n1 => {
-                        stage2Nodes.forEach(n2 => {
-                            if (n1.connected && n2.connected) {
-                                ctx.strokeStyle = "#00ff88"; ctx.lineWidth = 3;
-                                ctx.beginPath(); ctx.moveTo(n1.x, n1.y); ctx.lineTo(n2.x, n2.y); ctx.stroke();
-                            }
-                        });
-                    });
+                    ctx.fillStyle = "rgba(255, 0, 127, 0.25)";
+                    ctx.fillRect(vanishingZone.x, vanishingZone.y, vanishingZone.width, vanishingZone.height);
+                    ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 2;
+                    ctx.strokeRect(vanishingZone.x, vanishingZone.y, vanishingZone.width, vanishingZone.height);
+                    ctx.fillStyle = "#ff007f"; ctx.font = "bold 11px 'Segoe UI'";
+                    ctx.fillText("⚠️ Vanishing Gradient", vanishingZone.x + 10, vanishingZone.y + 50);
 
-                    // Draw Nodes
+                    let connectedList = stage2Nodes.filter(n => n.connected).sort((a,b) => a.order - b.order);
+                    if (connectedList.length > 1) {
+                        for (let i = 0; i < connectedList.length - 1; i++) {
+                            ctx.strokeStyle = "#00ff88"; ctx.lineWidth = 4;
+                            ctx.beginPath();
+                            ctx.moveTo(connectedList[i].x, connectedList[i].y);
+                            ctx.lineTo(connectedList[i+1].x, connectedList[i+1].y);
+                            ctx.stroke();
+                        }
+                    }
+
                     stage2Nodes.forEach(node => {
-                        ctx.fillStyle = node.connected ? "#00ff88" : "#ff007f";
-                        ctx.beginPath(); ctx.arc(node.x, node.y, 25, 0, Math.PI * 2); ctx.fill();
+                        ctx.fillStyle = node.connected ? "#00ff88" : "#a855f7";
+                        ctx.beginPath(); ctx.arc(node.x, node.y, 28, 0, Math.PI * 2); ctx.fill();
+                        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+
                         ctx.font = "20px Arial"; ctx.fillText(node.symbol, node.x - 10, node.y + 7);
-                        ctx.fillStyle = "#fff"; ctx.font = "12px 'Segoe UI'"; ctx.fillText(node.label, node.x - 30, node.y + 40);
+                        ctx.fillStyle = "#fff"; ctx.font = "bold 11px 'Segoe UI'"; ctx.fillText(node.label, node.x - 45, node.y + 43);
                     });
 
-                    // Draw Bugs
                     ctx.font = "22px Arial";
                     stage2SecurityBugs.forEach(bug => ctx.fillText("👾", bug.x - 10, bug.y + 10));
+
+                } else if (currentStage === 3) {
+                    ctx.fillStyle = "rgba(255, 0, 127, 0.08)";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    ctx.fillStyle = "#0f172a";
+                    ctx.fillRect(180, 45, 540, 42);
+                    ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 2;
+                    ctx.strokeRect(180, 45, 540, 42);
+
+                    ctx.fillStyle = "#00f0ff"; ctx.font = "bold 15px 'Segoe UI'";
+                    ctx.fillText(currentPromptText, 200, 72);
+
+                    ctx.fillStyle = "#ff007f"; ctx.fillRect(0, 410, canvas.width, 10);
+
+                    fallingItems.forEach(item => {
+                        ctx.font = "28px Arial";
+                        ctx.fillText(item.symbol, item.x - 14, item.y + 10);
+                    });
+
+                    ctx.fillStyle = "#fff"; ctx.font = "bold 14px 'Segoe UI'";
+                    ctx.fillText(`🎞️ Rendered Frames: ${stage3Score} / ${targetStage3Score}`, 20, 80);
                 }
 
-                ctx.drawImage(marioImg, player.x, player.y, player.width, player.height);
+                // تأثير الوميض البصري عند الحماية بعد الإصابة
+                if (player.invulnerableTimer % 10 < 5) {
+                    ctx.drawImage(marioImg, player.x, player.y, player.width, player.height);
+                }
 
-                // HUD Top Info
                 ctx.fillStyle = "#00f0ff"; ctx.font = "bold 16px 'Segoe UI', Tahoma";
                 ctx.fillText(`👤 ${playerName} | 🎯 Stage ${currentStage} | ❤️ Lives: ${lives} | 🪙 Coins: ${coins}`, 20, 30);
                 ctx.fillStyle = timer <= 15 ? "#ff007f" : "#00ff88";
@@ -659,6 +937,18 @@
                 ctx.drawImage(marioImg, player.x, player.y, player.width, player.height);
                 ctx.fillStyle = "#ffea00"; ctx.font = "bold 18px 'Segoe UI', Tahoma";
                 ctx.fillText(`🪙 Coins: ${coins} | ⏱️ Mini-game Time: ${miniTimer}s`, 25, 35);
+            }
+
+            // رسم شريط التنبيه السلس بدون تجميد الأزرار (In-Game Toast Notice)
+            if (toastTimer > 0) {
+                ctx.fillStyle = "rgba(255, 0, 127, 0.9)";
+                ctx.fillRect(canvas.width / 2 - 230, 110, 460, 40);
+                ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
+                ctx.strokeRect(canvas.width / 2 - 230, 110, 460, 40);
+                ctx.fillStyle = "#fff"; ctx.font = "bold 15px 'Segoe UI'";
+                ctx.textAlign = "center";
+                ctx.fillText(toastMessage, canvas.width / 2, 135);
+                ctx.textAlign = "left"; // إعادة الضبط
             }
         }
 
