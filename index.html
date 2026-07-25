@@ -55,6 +55,33 @@
             max-width: 900px;
         }
 
+        #in-game-ui {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            z-index: 5;
+        }
+
+        .icon-btn {
+            background: rgba(15, 23, 42, 0.85);
+            border: 2px solid #00f0ff;
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.08);
+            border-color: #00ff88;
+        }
+
         #touch-controls {
             display: flex;
             justify-content: space-between;
@@ -184,15 +211,15 @@
             flex-wrap: wrap;
             justify-content: center;
             margin-top: 10px;
-            max-width: 800px;
+            max-width: 850px;
         }
 
         .card {
             background: #0f172a;
             border: 2px solid #00f0ff;
             border-radius: 12px;
-            padding: 12px;
-            width: 170px;
+            padding: 10px;
+            width: 150px;
             text-align: center;
             cursor: pointer;
             transition: 0.3s;
@@ -217,7 +244,11 @@
     <div id="game-container">
         <canvas id="gameCanvas" width="900" height="450"></canvas>
 
-        <!-- Name Input Screen -->
+        <div id="in-game-ui" class="hidden">
+            <button id="pauseGameBtn" class="icon-btn">⏸️ Pause</button>
+            <button id="exitToHubBtn" class="icon-btn" style="border-color:#ff007f; color:#ff007f;">🏠 Main Hub</button>
+        </div>
+
         <div id="nameScreen" class="overlay">
             <h2 style="color: #00f0ff;">Welcome Hero! 🚀</h2>
             <p>Enter your name to register on the Bootcamp Leaders Board:</p>
@@ -225,31 +256,35 @@
             <button id="saveNameBtn" class="btn">ENTER BOOTCAMP HUB ⚡</button>
         </div>
 
-        <!-- Workshop Selection Menu (Hub) -->
         <div id="hubScreen" class="overlay hidden">
             <h2 style="color: #00f0ff;">🎓 Choose Your Workshop</h2>
             <p>Select a standalone workshop or visit the Bootcamp Store:</p>
 
             <div class="workshop-cards">
                 <div class="card" id="selectStage1">
-                    <div style="font-size: 2rem;">📡</div>
+                    <div style="font-size: 1.8rem;">📡</div>
                     <h4 style="color:#00f0ff; margin: 4px 0;">Workshop 1</h4>
-                    <p style="font-size: 0.75rem; color:#aaa; margin:0;">IoT Hardware & Sensors</p>
+                    <p style="font-size: 0.7rem; color:#aaa; margin:0;">IoT Hardware</p>
                 </div>
                 <div class="card" id="selectStage2">
-                    <div style="font-size: 2rem;">🧠</div>
+                    <div style="font-size: 1.8rem;">🧠</div>
                     <h4 style="color:#a855f7; margin: 4px 0;">Workshop 2</h4>
-                    <p style="font-size: 0.75rem; color:#aaa; margin:0;">Deep Learning Test</p>
+                    <p style="font-size: 0.7rem; color:#aaa; margin:0;">Deep Learning</p>
                 </div>
                 <div class="card" id="selectStage3">
-                    <div style="font-size: 2rem;">🎬</div>
+                    <div style="font-size: 1.8rem;">🎬</div>
                     <h4 style="color:#ff007f; margin: 4px 0;">Workshop 3</h4>
-                    <p style="font-size: 0.75rem; color:#aaa; margin:0;">AI Video Creator</p>
+                    <p style="font-size: 0.7rem; color:#aaa; margin:0;">AI Video Creator</p>
                 </div>
                 <div class="card" id="selectStage4">
-                    <div style="font-size: 2rem;">🤖</div>
+                    <div style="font-size: 1.8rem;">🤖</div>
                     <h4 style="color:#ffea00; margin: 4px 0;">Workshop 4</h4>
-                    <p style="font-size: 0.75rem; color:#aaa; margin:0;">Robotics Competition</p>
+                    <p style="font-size: 0.7rem; color:#aaa; margin:0;">Robotics Arena</p>
+                </div>
+                <div class="card" id="selectStage5">
+                    <div style="font-size: 1.8rem;">🔌</div>
+                    <h4 style="color:#00ff88; margin: 4px 0;">Workshop 5</h4>
+                    <p style="font-size: 0.7rem; color:#aaa; margin:0;">PCB Routing Pro</p>
                 </div>
             </div>
 
@@ -258,7 +293,13 @@
             </div>
         </div>
 
-        <!-- Victory Screen -->
+        <div id="pauseScreen" class="overlay hidden">
+            <h2 style="color: #00f0ff;">⏸️ GAME PAUSED</h2>
+            <p>Take a breath! What would you like to do?</p>
+            <button id="resumeGameBtn" class="btn">RESUME GAME ▶️</button>
+            <button id="pauseHubBtn" class="btn" style="background: #374151; color:#fff;">RETURN TO HUB 🏠</button>
+        </div>
+
         <div id="trophyScreen" class="overlay hidden">
             <h2 style="color: #ffea00;">🏆 WORKSHOP MASTERED! 🏆</h2>
             <div class="trophy-box">
@@ -270,7 +311,6 @@
             <button id="backToHubBtn1" class="btn" style="background: #374151; color:#fff;">RETURN TO HUB 🏠</button>
         </div>
 
-        <!-- Shop Screen -->
         <div id="shopScreen" class="overlay hidden">
             <h2 style="color: #ffea00;">🏪 Bootcamp Store & Coins</h2>
             <p>Your Balance: <b id="shopCoinsText" style="color:#00ff88; font-size:1.3rem;">0 🪙</b></p>
@@ -283,7 +323,6 @@
             <button id="resumeMainBtn" class="btn" style="margin-top:15px; background: #374151; color:#fff;">RETURN TO GAME 🎮</button>
         </div>
 
-        <!-- End Screen -->
         <div id="endScreen" class="overlay hidden">
             <h2 id="endTitle">CONGRATULATIONS!</h2>
             <p id="endMessage">Bootcamp Finished Successfully!</p>
@@ -308,9 +347,11 @@
 
         const nameScreen = document.getElementById("nameScreen");
         const hubScreen = document.getElementById("hubScreen");
+        const pauseScreen = document.getElementById("pauseScreen");
         const trophyScreen = document.getElementById("trophyScreen");
         const shopScreen = document.getElementById("shopScreen");
         const endScreen = document.getElementById("endScreen");
+        const inGameUI = document.getElementById("in-game-ui");
         
         const playerNameInput = document.getElementById("playerNameInput");
         const trophyPlayerName = document.getElementById("trophyPlayerName");
@@ -323,7 +364,12 @@
         const selectStage2 = document.getElementById("selectStage2");
         const selectStage3 = document.getElementById("selectStage3");
         const selectStage4 = document.getElementById("selectStage4");
+        const selectStage5 = document.getElementById("selectStage5");
         const openStoreBtn = document.getElementById("openStoreBtn");
+        const pauseGameBtn = document.getElementById("pauseGameBtn");
+        const exitToHubBtn = document.getElementById("exitToHubBtn");
+        const resumeGameBtn = document.getElementById("resumeGameBtn");
+        const pauseHubBtn = document.getElementById("pauseHubBtn");
         const nextStageBtn = document.getElementById("nextStageBtn");
         const restartBtn = document.getElementById("restartBtn");
         const backToHubBtn1 = document.getElementById("backToHubBtn1");
@@ -371,7 +417,7 @@
         let gameState = "NAME"; 
         let previousGameState = "HUB"; 
         let currentStage = 1;
-        let timer = 75;
+        let timer = 60;
         let timerInterval = null;
         
         let lives = 3;
@@ -382,7 +428,7 @@
 
         function showToast(msg) {
             toastMessage = msg;
-            toastTimer = 110;
+            toastTimer = 120;
         }
 
         let miniCoins = [];
@@ -392,23 +438,16 @@
         const keys = { left: false, right: false, jump: false, up: false, down: false };
 
         function resetKeys() {
-            keys.left = false;
-            keys.right = false;
-            keys.jump = false;
-            keys.up = false;
-            keys.down = false;
+            keys.left = false; keys.right = false; keys.jump = false; keys.up = false; keys.down = false;
         }
 
         const player = {
             x: 40, y: 350, width: 35, height: 45,
             vx: 0, vy: 0, speed: 6.5, jumpPower: -12.5, gravity: 0.5, isJumping: false,
-            invulnerableTimer: 0,
-            // خواص خاصة بالورشة 4 (الروبوت الدايناميكي)
-            angle: 0,
-            battery: 100
+            invulnerableTimer: 0, angle: 0, battery: 100
         };
 
-        // --- STAGE 1 (IoT Hardware) ---
+        // --- STAGE 1 ---
         const stage1Platforms = [
             { x: 0, y: 410, width: 900, height: 40, color: '#00f0ff' },
             { x: 80, y: 330, width: 120, height: 15, color: '#ff007f' },
@@ -434,7 +473,7 @@
             { x: 630, y: 250, width: 22, height: 22, vx: 1.2, minX: 620, maxX: 720, symbol: "👾" }
         ];
 
-        // --- STAGE 2 (Deep Learning Architecture Test) ---
+        // --- STAGE 2 ---
         let nextRequiredOrder = 1;
         let stage2Nodes = [
             { id: 1, order: 1, x: 100, y: 120, label: "Input Data", symbol: "📥", connected: false },
@@ -454,9 +493,9 @@
 
         let vanishingZone = { x: 380, y: 220, width: 140, height: 90, active: true };
 
-        // --- STAGE 3 (AI Video Creator Pro) ---
+        // --- STAGE 3 ---
         let stage3Score = 0;
-        const targetStage3Score = 12;
+        const targetStage3Score = 15;
         let stage3PromptsList = [
             "Prompt: Cinematic Cyberpunk Scene 🎥",
             "Prompt: Photorealistic AI Drone View 🚁",
@@ -469,18 +508,18 @@
 
         function spawnStage3Item() {
             const r = Math.random();
-            let isBad = r < 0.45;
+            let isBad = r < 0.35;
             fallingItems.push({
                 x: Math.random() * (canvas.width - 60) + 30,
                 y: -20,
-                speed: Math.random() * 2.5 + 3.2,
+                baseSpeed: Math.random() * 2.0 + 2.0,
                 drift: (Math.random() - 0.5) * 1.5,
                 isBad: isBad,
                 symbol: isBad ? (Math.random() < 0.5 ? "💥" : "⚠️") : "🎬"
             });
         }
 
-        // --- STAGE 4 (Autonomous Robotics Arena) ---
+        // --- STAGE 4 ---
         let stage4Walls = [
             { x: 200, y: 0, width: 25, height: 280 },
             { x: 420, y: 160, width: 25, height: 290 },
@@ -489,16 +528,52 @@
 
         let stage4Batteries = [
             { x: 120, y: 220, collected: false },
+            { x: 120, y: 380, collected: false },
             { x: 320, y: 80, collected: false },
+            { x: 320, y: 380, collected: false },
+            { x: 540, y: 100, collected: false },
             { x: 540, y: 380, collected: false }
         ];
 
         let stage4Enemies = [
-            { x: 310, y: 280, radius: 20, angle: 0, speed: 0.03, dist: 60 },
-            { x: 540, y: 140, radius: 20, angle: 0, speed: 0.04, dist: 70 }
+            { x: 310, y: 280, radius: 20, angle: 0, speed: 0.035, dist: 65 },
+            { x: 540, y: 220, radius: 20, angle: 0, speed: 0.045, dist: 75 }
         ];
 
         const goalZone = { x: 780, y: 330, width: 80, height: 80 };
+
+        // --- STAGE 5 (PCB Trace Design - معدل بالتفصيل) ---
+        let pcbTracesCount = 0;
+        let pcbTargetTraces = 5; // 3 خطوط كحد أقصى للهدف
+        let currentPcbTrace = [];
+        let permanentPcbTraces = []; 
+        
+        let isImmune = false; // متغير فترة الأمان
+        const immunityDuration = 1500; // وقت الحماية بالملي ثانية (ثانية ونصف)
+
+        let pcbStartPad = { x: 80, y: 225, radius: 20 };
+        let pcbEndPad = { x: 820, y: 225, radius: 20 };
+        
+        let pcbComponents = [
+            { x: 240, y: 110, w: 75, h: 75, label: "IC-1 🔳" },
+            { x: 240, y: 270, w: 75, h: 75, label: "IC-2 🔳" },
+            { x: 480, y: 70, w: 90, h: 90, label: "MCU 🔲" },
+            { x: 480, y: 290, w: 90, h: 80, label: "RELAY ⚡" },
+            { x: 700, y: 180, w: 50, h: 90, label: "CAP 🔋" }
+        ];
+
+        function resetStage5Round() {
+            resetKeys();
+            player.x = pcbStartPad.x;
+            player.y = pcbStartPad.y;
+            currentPcbTrace = [{ x: player.x, y: player.y }];
+            
+            // تفعيل نظام الأمان بشكل مضمون في بداية كل جولة لمنع الخطأ المباشر
+            isImmune = true;
+            setTimeout(() => {
+                isImmune = false;
+            }, immunityDuration);
+        }
 
         window.addEventListener("keydown", (e) => {
             unlockAudio();
@@ -547,14 +622,36 @@
             trophyScreen.classList.add("hidden");
             endScreen.classList.add("hidden");
             shopScreen.classList.add("hidden");
+            pauseScreen.classList.add("hidden");
+            inGameUI.classList.add("hidden");
             hubScreen.classList.remove("hidden");
             mainTitle.innerText = "🤖 Labeeb Bootcamp Pro";
         }
+
+        pauseGameBtn.addEventListener("click", () => {
+            if (gameState === "PLAYING") {
+                gameState = "PAUSED";
+                clearInterval(timerInterval);
+                pauseScreen.classList.remove("hidden");
+            }
+        });
+
+        resumeGameBtn.addEventListener("click", () => {
+            if (gameState === "PAUSED") {
+                gameState = "PLAYING";
+                pauseScreen.classList.add("hidden");
+                startMainTimer();
+            }
+        });
+
+        exitToHubBtn.addEventListener("click", () => openHub());
+        pauseHubBtn.addEventListener("click", () => openHub());
 
         selectStage1.addEventListener("click", () => { hubScreen.classList.add("hidden"); resetStageProgress(1); loadStage(1); startGame(); });
         selectStage2.addEventListener("click", () => { hubScreen.classList.add("hidden"); resetStageProgress(2); loadStage(2); startGame(); });
         selectStage3.addEventListener("click", () => { hubScreen.classList.add("hidden"); resetStageProgress(3); loadStage(3); startGame(); });
         selectStage4.addEventListener("click", () => { hubScreen.classList.add("hidden"); resetStageProgress(4); loadStage(4); startGame(); });
+        selectStage5.addEventListener("click", () => { hubScreen.classList.add("hidden"); resetStageProgress(5); loadStage(5); startGame(); });
         openStoreBtn.addEventListener("click", () => { openShop(); });
         backToHubBtn1.addEventListener("click", () => openHub());
         backToHubBtn2.addEventListener("click", () => openHub());
@@ -562,7 +659,7 @@
         nextStageBtn.addEventListener("click", () => {
             unlockAudio(); trophyScreen.classList.add("hidden");
             let nextStage = currentStage + 1;
-            if (nextStage > 4) openHub();
+            if (nextStage > 5) openHub();
             else { resetStageProgress(nextStage); loadStage(nextStage); startGame(); }
         });
 
@@ -584,6 +681,7 @@
             resetKeys();
             if (previousGameState === "PLAYING") {
                 gameState = "PLAYING";
+                inGameUI.classList.remove("hidden");
                 startMainTimer();
             } else {
                 openHub();
@@ -599,29 +697,22 @@
             gameState = "SHOP"; 
             clearInterval(timerInterval);
             resetKeys();
+            inGameUI.classList.add("hidden");
             updateShopUI(); 
             shopScreen.classList.remove("hidden");
         }
 
         function resetStageProgress(stageNum) {
-            if (stageNum === 1) {
-                stage1Items.forEach(i => i.collected = false);
-            } else if (stageNum === 2) {
-                nextRequiredOrder = 1;
-                stage2Nodes.forEach(n => n.connected = false);
-            } else if (stageNum === 3) {
-                stage3Score = 0;
-                fallingItems = [];
-            } else if (stageNum === 4) {
-                player.battery = 100;
-                player.angle = 0;
-                stage4Batteries.forEach(b => b.collected = false);
-            }
+            if (stageNum === 1) stage1Items.forEach(i => i.collected = false);
+            else if (stageNum === 2) { nextRequiredOrder = 1; stage2Nodes.forEach(n => n.connected = false); }
+            else if (stageNum === 3) { stage3Score = 0; fallingItems = []; }
+            else if (stageNum === 4) { player.battery = 100; player.angle = 0; stage4Batteries.forEach(b => b.collected = false); }
+            else if (stageNum === 5) { pcbTracesCount = 0; permanentPcbTraces = []; resetStage5Round(); }
         }
 
         function loadStage(stageNum) {
             currentStage = stageNum;
-            timer = stageNum === 3 ? 75 : 60;
+            timer = 60;
             resetKeys();
             player.vx = 0; player.vy = 0;
             player.invulnerableTimer = 60;
@@ -633,12 +724,16 @@
                 mainTitle.innerText = "🧠 Workshop 2: Deep Learning Architecture Test";
                 player.x = 40; player.y = 100;
             } else if (stageNum === 3) {
-                mainTitle.innerText = "🎬 Workshop 3: AI Video Creator Pro (12 Frames Target)";
+                mainTitle.innerText = "🎬 Workshop 3: AI Video Creator";
                 player.x = canvas.width / 2 - 20; player.y = 360;
                 currentPromptText = stage3PromptsList[Math.floor(Math.random() * stage3PromptsList.length)];
             } else if (stageNum === 4) {
                 mainTitle.innerText = "🤖 Workshop 4: Autonomous Robotics Competition";
                 player.x = 60; player.y = 60; player.angle = 0; player.battery = 100;
+            } else if (stageNum === 5) {
+                mainTitle.innerText = "🔌 Workshop 5: PCB Circuit Routing & Permanent Traces";
+                permanentPcbTraces = [];
+                resetStage5Round();
             }
         }
 
@@ -647,9 +742,7 @@
             timerInterval = setInterval(() => {
                 if (gameState === "PLAYING") {
                     timer--;
-                    if (currentStage === 3) {
-                        if (Math.random() < 0.8) spawnStage3Item();
-                    }
+                    if (currentStage === 3) spawnStage3Item();
                     if (timer <= 0) gameOver(false);
                 }
             }, 1000);
@@ -657,21 +750,19 @@
 
         function startGame() {
             if (lives <= 0) {
-                openShop();
-                showToast("You need at least 1 Life! Visit Store ❤️");
-                return;
+                openShop(); showToast("You need at least 1 Life! Visit Store ❤️"); return;
             }
             gameState = "PLAYING";
             resetKeys();
-            endScreen.classList.add("hidden");
-            shopScreen.classList.add("hidden");
-            trophyScreen.classList.add("hidden");
+            endScreen.classList.add("hidden"); shopScreen.classList.add("hidden");
+            trophyScreen.classList.add("hidden"); pauseScreen.classList.add("hidden");
+            inGameUI.classList.remove("hidden");
             startMainTimer();
         }
 
         function startMiniGame() {
             gameState = "MINIGAME"; shopScreen.classList.add("hidden"); miniTimer = 20;
-            resetKeys();
+            inGameUI.classList.add("hidden"); resetKeys();
             player.x = canvas.width / 2; player.y = canvas.height / 2;
             player.vx = 0; player.vy = 0;
             miniCoins = [];
@@ -692,7 +783,8 @@
         }
 
         function handleHit(msg) {
-            if (player.invulnerableTimer > 0) return;
+            // إيقاف الخسارة في فترة الحماية
+            if (isImmune || player.invulnerableTimer > 0) return;
 
             lives--; playSound('lose');
             if (msg) showToast(msg);
@@ -701,45 +793,46 @@
             player.vx = 0; player.vy = 0;
             player.invulnerableTimer = 60;
 
-            player.x = currentStage === 1 ? 40 : (currentStage === 2 ? 40 : (currentStage === 3 ? canvas.width / 2 - 20 : 60));
-            player.y = currentStage === 1 ? 350 : (currentStage === 2 ? 100 : (currentStage === 3 ? 360 : 60));
-            if (currentStage === 4) { player.angle = 0; player.battery = 100; }
-
-            if (lives <= 0) {
-                openShop();
+            if (currentStage === 5) {
+                resetStage5Round();
+            } else {
+                player.x = currentStage === 1 ? 40 : (currentStage === 2 ? 40 : (currentStage === 3 ? canvas.width / 2 - 20 : 60));
+                player.y = currentStage === 1 ? 350 : (currentStage === 2 ? 100 : (currentStage === 3 ? 360 : 60));
+                if (currentStage === 4) { player.angle = 0; player.battery = 100; }
             }
+
+            if (lives <= 0) openShop();
         }
 
         function showTrophyScreen() {
             clearInterval(timerInterval);
-            gameState = "TROPHY";
-            resetKeys();
+            gameState = "TROPHY"; resetKeys();
+            inGameUI.classList.add("hidden");
             trophyPlayerName.innerText = playerName;
             if (currentStage === 1) trophyDesc.innerText = "Master of Workshop 1: Hardware & Sensors";
             else if (currentStage === 2) trophyDesc.innerText = "Master of Workshop 2: Deep Learning Neural Architecture";
-            else if (currentStage === 3) trophyDesc.innerText = "Master of Workshop 3: AI Video Generation & Prompt Pro";
-            else if (currentStage === 4) trophyDesc.innerText = "Master of Workshop 4: Autonomous Robotics Competition Winner!";
+            else if (currentStage === 3) trophyDesc.innerText = "Master of Workshop 3: AI Video Generation";
+            else if (currentStage === 4) trophyDesc.innerText = "Master of Workshop 4: Autonomous Robotics Competition";
+            else if (currentStage === 5) trophyDesc.innerText = "Master of Workshop 5: PCB Trace & Circuit Design Master!";
             
-            if(currentStage === 4) {
-                nextStageBtn.style.display = "none";
-            } else {
-                nextStageBtn.style.display = "inline-block";
-            }
+            if(currentStage === 5) nextStageBtn.style.display = "none";
+            else nextStageBtn.style.display = "inline-block";
+
             trophyScreen.classList.remove("hidden");
         }
 
         function gameOver(isWin) {
             gameState = isWin ? "WIN" : "GAMEOVER"; clearInterval(timerInterval);
-            resetKeys();
+            resetKeys(); inGameUI.classList.add("hidden");
             if (isWin) {
                 endTitle.innerText = `🏆 BOOTCAMP GRADUATE PRO: ${playerName.toUpperCase()}!`;
                 endTitle.style.color = "#00ff88";
-                endMessage.innerHTML = `Awesome Job <b>${playerName}</b>!<br>You completed all 4 Bootcamp Workshops & Robotics Arena Challenge!`;
+                endMessage.innerHTML = `Awesome Job <b>${playerName}</b>!<br>You completed all 5 Bootcamp Workshops!`;
             } else {
                 playSound('lose');
                 endTitle.innerText = "💥 SYSTEM FAILURE!";
                 endTitle.style.color = "#ff007f";
-                endMessage.innerText = timer <= 0 ? "Time limit exceeded!" : "Out of lives / Battery depleted!";
+                endMessage.innerText = timer <= 0 ? "Time limit exceeded!" : "Out of lives!";
             }
             endScreen.classList.remove("hidden");
         }
@@ -754,9 +847,7 @@
                     else if (keys.left) player.vx = -player.speed;
                     else player.vx = 0;
 
-                    if (keys.jump && !player.isJumping) {
-                        player.vy = player.jumpPower; player.isJumping = true;
-                    }
+                    if (keys.jump && !player.isJumping) { player.vy = player.jumpPower; player.isJumping = true; }
 
                     player.vy += player.gravity; player.x += player.vx; player.y += player.vy;
                     if (player.x < 0) player.x = 0;
@@ -764,10 +855,7 @@
 
                     player.isJumping = true;
                     stage1Platforms.forEach(p => {
-                        if (
-                            player.x < p.x + p.width && player.x + player.width > p.x &&
-                            player.y + player.height >= p.y && player.y + player.height <= p.y + p.height + player.vy
-                        ) {
+                        if (player.x < p.x + p.width && player.x + player.width > p.x && player.y + player.height >= p.y && player.y + player.height <= p.y + p.height + player.vy) {
                             player.y = p.y - player.height; player.vy = 0; player.isJumping = false;
                         }
                     });
@@ -795,12 +883,7 @@
                     if (keys.up && player.y > 0) player.y -= 6;
                     if (keys.down && player.y < canvas.height - player.height) player.y += 6;
 
-                    if (
-                        player.x < vanishingZone.x + vanishingZone.width &&
-                        player.x + player.width > vanishingZone.x &&
-                        player.y < vanishingZone.y + vanishingZone.height &&
-                        player.y + player.height > vanishingZone.y
-                    ) {
+                    if (player.x < vanishingZone.x + vanishingZone.width && player.x + player.width > vanishingZone.x && player.y < vanishingZone.y + vanishingZone.height && player.y + player.height > vanishingZone.y) {
                         handleHit("⚠️ Vanishing Gradient Trap!");
                     }
 
@@ -808,7 +891,6 @@
                         bug.x += bug.vx; bug.y += bug.vy;
                         if (bug.x <= 30 || bug.x >= canvas.width - 30) bug.vx *= -1;
                         if (bug.y <= 30 || bug.y >= canvas.height - 30) bug.vy *= -1;
-
                         let dist = Math.hypot((player.x + player.width/2) - bug.x, (player.y + player.height/2) - bug.y);
                         if (dist < 22) handleHit("Attacked by Model Overfitting Virus! 👾");
                     });
@@ -818,13 +900,8 @@
                         let dist = Math.hypot((player.x + player.width/2) - node.x, (player.y + player.height/2) - node.y);
                         if (dist < 35) {
                             if (!node.connected) {
-                                if (node.order === nextRequiredOrder) {
-                                    node.connected = true; 
-                                    nextRequiredOrder++;
-                                    playSound('collect');
-                                } else {
-                                    handleHit(`⚠️ Wrong Neural Layer Sequence!`);
-                                }
+                                if (node.order === nextRequiredOrder) { node.connected = true; nextRequiredOrder++; playSound('collect'); }
+                                else { handleHit(`⚠️ Wrong Neural Layer Sequence!`); }
                             }
                         }
                         if (node.connected) connectedCount++;
@@ -836,88 +913,133 @@
                     if (keys.right && player.x < canvas.width - player.width) player.x += 7.5;
                     if (keys.left && player.x > 0) player.x -= 7.5;
 
+                    let timeElapsed = 60 - timer;
+                    let speedMultiplier = 1 + (timeElapsed / 25);
+
                     for (let i = fallingItems.length - 1; i >= 0; i--) {
                         let item = fallingItems[i];
-                        item.y += item.speed;
-                        item.x += item.drift;
+                        item.y += item.baseSpeed * speedMultiplier; item.x += item.drift;
 
                         let dist = Math.hypot((player.x + player.width/2) - item.x, (player.y + player.height/2) - item.y);
                         if (dist < 28) {
-                            if (item.isBad) {
-                                handleHit("Caught Prompt Hallucination Noise! 💥");
-                            } else {
-                                stage3Score++;
-                                playSound('collect');
-                                currentPromptText = stage3PromptsList[Math.floor(Math.random() * stage3PromptsList.length)];
-                            }
-                            fallingItems.splice(i, 1);
-                            continue;
+                            if (item.isBad) handleHit("Caught Prompt Hallucination Noise! 💥");
+                            else { stage3Score++; playSound('collect'); currentPromptText = stage3PromptsList[Math.floor(Math.random() * stage3PromptsList.length)]; }
+                            fallingItems.splice(i, 1); continue;
                         }
-
-                        if (item.y > canvas.height + 20) {
-                            fallingItems.splice(i, 1);
-                        }
+                        if (item.y > canvas.height + 20) fallingItems.splice(i, 1);
                     }
 
                     if (stage3Score >= targetStage3Score) showTrophyScreen();
 
                 } else if (currentStage === 4) {
-                    // حركة الفيزياء للروبوت المستقل (Differential Drive Physics)
                     if (keys.left) player.angle -= 0.06;
                     if (keys.right) player.angle += 0.06;
 
                     let moveSpeed = 0;
-                    if (keys.up) { moveSpeed = 4.2; player.battery -= 0.05; }
-                    if (keys.down) { moveSpeed = -2.5; player.battery -= 0.03; }
+                    if (keys.up) { moveSpeed = 4.2; player.battery -= 0.06; }
+                    if (keys.down) { moveSpeed = -2.5; player.battery -= 0.04; }
 
-                    player.x += Math.cos(player.angle) * moveSpeed;
-                    player.y += Math.sin(player.angle) * moveSpeed;
+                    player.x += Math.cos(player.angle) * moveSpeed; player.y += Math.sin(player.angle) * moveSpeed;
 
                     if (player.battery <= 0) handleHit("🔋 Battery Depleted!");
-
-                    // الحدود الحلبة الجانبية
                     if (player.x < 15) player.x = 15;
                     if (player.x > canvas.width - 35) player.x = canvas.width - 35;
                     if (player.y < 15) player.y = 15;
                     if (player.y > canvas.height - 35) player.y = canvas.height - 35;
 
-                    // اصطدام جدران المتاهة
                     stage4Walls.forEach(w => {
-                        if (player.x < w.x + w.width && player.x + 30 > w.x && player.y < w.y + w.height && player.y + 30 > w.y) {
-                            handleHit("💥 Collided with Arena Wall!");
-                        }
+                        if (player.x < w.x + w.width && player.x + 30 > w.x && player.y < w.y + w.height && player.y + 30 > w.y) handleHit("💥 Collided with Arena Wall!");
                     });
 
-                    // تجميع بطاريات شحن إضافية
                     stage4Batteries.forEach(b => {
                         if (!b.collected) {
                             let dist = Math.hypot((player.x + 15) - b.x, (player.y + 15) - b.y);
-                            if (dist < 28) {
-                                b.collected = true;
-                                player.battery = Math.min(100, player.battery + 35);
-                                playSound('collect');
-                            }
+                            if (dist < 28) { b.collected = true; player.battery = Math.min(100, player.battery + 30); playSound('collect'); }
                         }
                     });
 
-                    // حركات الروبوتات المنافسة 👾
                     stage4Enemies.forEach(e => {
                         e.angle += e.speed;
                         let ex = e.x + Math.cos(e.angle) * e.dist;
                         let ey = e.y + Math.sin(e.angle) * e.dist;
-
                         let dist = Math.hypot((player.x + 15) - ex, (player.y + 15) - ey);
                         if (dist < 25) handleHit("💥 Collided with Enemy Robot!");
                     });
 
-                    // وصول خط نهاية المسابقة 🏁
-                    if (
-                        player.x < goalZone.x + goalZone.width &&
-                        player.x + 30 > goalZone.x &&
-                        player.y < goalZone.y + goalZone.height &&
-                        player.y + 30 > goalZone.y
-                    ) {
-                        gameOver(true);
+                    if (player.x < goalZone.x + goalZone.width && player.x + 30 > goalZone.x && player.y < goalZone.y + goalZone.height && player.y + 30 > goalZone.y) {
+                        showTrophyScreen();
+                    }
+
+                } else if (currentStage === 5) {
+                    let timeElapsed = 60 - timer;
+                    let pcbSpeed = 3.6 + (timeElapsed / 18);
+
+                    let moved = false;
+                    let nextX = player.x;
+                    let nextY = player.y;
+
+                    if (keys.right) { nextX += pcbSpeed; moved = true; }
+                    else if (keys.left) { nextX -= pcbSpeed; moved = true; }
+                    else if (keys.up) { nextY -= pcbSpeed; moved = true; }
+                    else if (keys.down) { nextY += pcbSpeed; moved = true; }
+
+                    if (moved) {
+                        player.x = nextX; player.y = nextY;
+                        currentPcbTrace.push({ x: player.x, y: player.y });
+
+                        // 1. الحدود الخارجية
+                        if (player.x < 15 || player.x > canvas.width - 15 || player.y < 15 || player.y > canvas.height - 15) {
+                            handleHit("💥 Off PCB Board Boundary!");
+                        }
+
+                        // 2. العناصر والقطع على البورد
+                        pcbComponents.forEach(comp => {
+                            if (player.x > comp.x && player.x < comp.x + comp.w && player.y > comp.y && player.y < comp.y + comp.h) {
+                                handleHit("💥 Short Circuit with Component Pad!");
+                            }
+                        });
+
+                        // 3. التقاطع مع نفس الخط الحالي (نستثني أول 25 نقطة لمنع الالتفاف السريع)
+                        if (currentPcbTrace.length > 25) {
+                            for (let i = 0; i < currentPcbTrace.length - 25; i++) {
+                                let pt = currentPcbTrace[i];
+                                let dist = Math.hypot(player.x - pt.x, player.y - pt.y);
+                                if (dist < 6) {
+                                    handleHit("⚡ Short Circuit! Intersected Current Trace!");
+                                    break;
+                                }
+                            }
+                        }
+
+                        // 4. الاصطدام بالخطوط السابقة المحفوظة (تجاوز الفحص إذا كانت في فترة الأمان)
+                        if (!isImmune) {
+                            permanentPcbTraces.forEach(oldTrace => {
+                                // تجاهل النقط القريبة جداً من نقطة البداية لتجنب الإيرور الفوري
+                                for (let i = 15; i < oldTrace.length; i++) {
+                                    let pt = oldTrace[i];
+                                    let dist = Math.hypot(player.x - pt.x, player.y - pt.y);
+                                    if (dist < 7) {
+                                        handleHit("💥 Short Circuit! Cannot Cross Previous Copper Trace!");
+                                        break;
+                                    }
+                                }
+                            });
+                        }
+
+                        // 5. الوصول للهدف
+                        let distEnd = Math.hypot(player.x - pcbEndPad.x, player.y - pcbEndPad.y);
+                        if (distEnd < pcbEndPad.radius) {
+                            pcbTracesCount++;
+                            playSound('collect');
+                            permanentPcbTraces.push([...currentPcbTrace]);
+
+                            if (pcbTracesCount >= pcbTargetTraces) {
+                                showTrophyScreen();
+                            } else {
+                                showToast(`Trace ${pcbTracesCount}/${pcbTargetTraces} Locked on Board! Plan next route ⚡`);
+                                resetStage5Round();
+                            }
+                        }
                     }
                 }
             }
@@ -946,7 +1068,7 @@
         function draw() {
             ctx.fillStyle = '#030712'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            if (gameState === "PLAYING" || gameState === "WIN" || gameState === "GAMEOVER" || gameState === "SHOP") {
+            if (gameState === "PLAYING" || gameState === "PAUSED" || gameState === "WIN" || gameState === "GAMEOVER" || gameState === "SHOP") {
                 if (currentStage === 1) {
                     stage1Platforms.forEach(p => {
                         ctx.fillStyle = "#0f172a"; ctx.fillRect(p.x, p.y, p.width, p.height);
@@ -963,19 +1085,14 @@
 
                     ctx.fillStyle = "rgba(255, 0, 127, 0.25)";
                     ctx.fillRect(vanishingZone.x, vanishingZone.y, vanishingZone.width, vanishingZone.height);
-                    ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 2;
-                    ctx.strokeRect(vanishingZone.x, vanishingZone.y, vanishingZone.width, vanishingZone.height);
-                    ctx.fillStyle = "#ff007f"; ctx.font = "bold 11px 'Segoe UI'";
-                    ctx.fillText("⚠️ Vanishing Gradient", vanishingZone.x + 10, vanishingZone.y + 50);
+                    ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 2; ctx.strokeRect(vanishingZone.x, vanishingZone.y, vanishingZone.width, vanishingZone.height);
+                    ctx.fillStyle = "#ff007f"; ctx.font = "bold 11px 'Segoe UI'"; ctx.fillText("⚠️ Vanishing Gradient", vanishingZone.x + 10, vanishingZone.y + 50);
 
                     let connectedList = stage2Nodes.filter(n => n.connected).sort((a,b) => a.order - b.order);
                     if (connectedList.length > 1) {
                         for (let i = 0; i < connectedList.length - 1; i++) {
                             ctx.strokeStyle = "#00ff88"; ctx.lineWidth = 4;
-                            ctx.beginPath();
-                            ctx.moveTo(connectedList[i].x, connectedList[i].y);
-                            ctx.lineTo(connectedList[i+1].x, connectedList[i+1].y);
-                            ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(connectedList[i].x, connectedList[i].y); ctx.lineTo(connectedList[i+1].x, connectedList[i+1].y); ctx.stroke();
                         }
                     }
 
@@ -983,112 +1100,120 @@
                         ctx.fillStyle = node.connected ? "#00ff88" : "#a855f7";
                         ctx.beginPath(); ctx.arc(node.x, node.y, 28, 0, Math.PI * 2); ctx.fill();
                         ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
-
                         ctx.font = "20px Arial"; ctx.fillText(node.symbol, node.x - 10, node.y + 7);
                         ctx.fillStyle = "#fff"; ctx.font = "bold 11px 'Segoe UI'"; ctx.fillText(node.label, node.x - 45, node.y + 43);
                     });
 
-                    ctx.font = "22px Arial";
-                    stage2SecurityBugs.forEach(bug => ctx.fillText("👾", bug.x - 10, bug.y + 10));
+                    ctx.font = "22px Arial"; stage2SecurityBugs.forEach(bug => ctx.fillText("👾", bug.x - 10, bug.y + 10));
 
                 } else if (currentStage === 3) {
-                    ctx.fillStyle = "rgba(255, 0, 127, 0.08)";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                    ctx.fillStyle = "#0f172a";
-                    ctx.fillRect(180, 45, 540, 42);
-                    ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 2;
-                    ctx.strokeRect(180, 45, 540, 42);
-
-                    ctx.fillStyle = "#00f0ff"; ctx.font = "bold 15px 'Segoe UI'";
-                    ctx.fillText(currentPromptText, 200, 72);
-
+                    ctx.fillStyle = "rgba(255, 0, 127, 0.08)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = "#0f172a"; ctx.fillRect(180, 45, 540, 42);
+                    ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 2; ctx.strokeRect(180, 45, 540, 42);
+                    ctx.fillStyle = "#00f0ff"; ctx.font = "bold 15px 'Segoe UI'"; ctx.fillText(currentPromptText, 200, 72);
                     ctx.fillStyle = "#ff007f"; ctx.fillRect(0, 410, canvas.width, 10);
 
-                    fallingItems.forEach(item => {
-                        ctx.font = "28px Arial";
-                        ctx.fillText(item.symbol, item.x - 14, item.y + 10);
-                    });
+                    fallingItems.forEach(item => { ctx.font = "28px Arial"; ctx.fillText(item.symbol, item.x - 14, item.y + 10); });
+                    ctx.fillStyle = "#fff"; ctx.font = "bold 14px 'Segoe UI'"; ctx.fillText(`🎞️ Rendered Frames: ${stage3Score} / ${targetStage3Score}`, 20, 80);
 
-                    ctx.fillStyle = "#fff"; ctx.font = "bold 14px 'Segoe UI'";
-                    ctx.fillText(`🎞️ Rendered Frames: ${stage3Score} / ${targetStage3Score}`, 20, 80);
+                    let speedRatio = Math.round((1 + ((60 - timer) / 25)) * 100) / 100;
+                    ctx.fillStyle = speedRatio > 2 ? "#ff007f" : "#ffea00"; ctx.fillText(`⚡ Speed Multiplier: ${speedRatio}x`, 20, 102);
 
                 } else if (currentStage === 4) {
-                    // رسم أرضية الحلبة الجدارية (Robotics Arena)
-                    ctx.strokeStyle = "rgba(0, 240, 255, 0.2)"; ctx.lineWidth = 2;
-                    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
-
-                    // رسم خطوط المتاهة/الجدران
+                    ctx.strokeStyle = "rgba(0, 240, 255, 0.2)"; ctx.lineWidth = 2; ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
                     ctx.fillStyle = "#ff007f";
                     stage4Walls.forEach(w => {
                         ctx.fillRect(w.x, w.y, w.width, w.height);
-                        ctx.strokeStyle = "#00f0ff"; ctx.lineWidth = 1.5;
-                        ctx.strokeRect(w.x, w.y, w.width, w.height);
+                        ctx.strokeStyle = "#00f0ff"; ctx.lineWidth = 1.5; ctx.strokeRect(w.x, w.y, w.width, w.height);
                     });
 
-                    // رسم هدف خط النهاية 🏁
-                    ctx.fillStyle = "rgba(0, 255, 136, 0.3)";
-                    ctx.fillRect(goalZone.x, goalZone.y, goalZone.width, goalZone.height);
-                    ctx.strokeStyle = "#00ff88"; ctx.lineWidth = 3;
-                    ctx.strokeRect(goalZone.x, goalZone.y, goalZone.width, goalZone.height);
+                    ctx.fillStyle = "rgba(0, 255, 136, 0.3)"; ctx.fillRect(goalZone.x, goalZone.y, goalZone.width, goalZone.height);
+                    ctx.strokeStyle = "#00ff88"; ctx.lineWidth = 3; ctx.strokeRect(goalZone.x, goalZone.y, goalZone.width, goalZone.height);
                     ctx.font = "32px Arial"; ctx.fillText("🏁", goalZone.x + 24, goalZone.y + 52);
 
-                    // رسم بطاريات الشحن 🔋
-                    ctx.font = "24px Arial";
-                    stage4Batteries.forEach(b => {
-                        if (!b.collected) ctx.fillText("🔋", b.x - 12, b.y + 10);
-                    });
-
-                    // رسم الروبوتات المنافسة 👾
+                    ctx.font = "24px Arial"; stage4Batteries.forEach(b => { if (!b.collected) ctx.fillText("🔋", b.x - 12, b.y + 10); });
                     stage4Enemies.forEach(e => {
                         let ex = e.x + Math.cos(e.angle) * e.dist;
                         let ey = e.y + Math.sin(e.angle) * e.dist;
                         ctx.fillText("👾", ex - 12, ey + 10);
                     });
 
-                    // رسم محاكاة شعاع السنسور الألتراسونيك (Ultrasonic Ray Sensor)
                     let rayX = (player.x + 18) + Math.cos(player.angle) * 70;
                     let rayY = (player.y + 20) + Math.sin(player.angle) * 70;
                     ctx.strokeStyle = "#00ff88"; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
-                    ctx.beginPath();
-                    ctx.moveTo(player.x + 18, player.y + 20);
-                    ctx.lineTo(rayX, rayY);
-                    ctx.stroke();
-                    ctx.setLineDash([]); // إعادة الضبط
+                    ctx.beginPath(); ctx.moveTo(player.x + 18, player.y + 20); ctx.lineTo(rayX, rayY); ctx.stroke(); ctx.setLineDash([]);
 
-                    // مؤشر شحن بطارية الروبوت 🔋 Bar
-                    ctx.fillStyle = "#1e293b"; ctx.fillRect(20, 55, 120, 14);
-                    ctx.fillStyle = player.battery > 30 ? "#00ff88" : "#ff007f";
-                    ctx.fillRect(20, 55, (player.battery / 100) * 120, 14);
-                    ctx.strokeStyle = "#fff"; ctx.lineWidth = 1; ctx.strokeRect(20, 55, 120, 14);
-                    ctx.fillStyle = "#fff"; ctx.font = "bold 11px 'Segoe UI'";
-                    ctx.fillText(`⚡ BATTERY: ${Math.ceil(player.battery)}%`, 25, 66);
+                    let batColor = player.battery > 50 ? "#00ff88" : (player.battery > 25 ? "#ffea00" : "#ff007f");
+                    ctx.fillStyle = "rgba(15, 23, 42, 0.9)"; ctx.fillRect(20, 50, 160, 24);
+                    ctx.strokeStyle = batColor; ctx.lineWidth = 2.5; ctx.strokeRect(20, 50, 160, 24);
+                    ctx.fillStyle = batColor; ctx.fillRect(23, 53, (player.battery / 100) * 154, 18);
+                    ctx.fillStyle = "#fff"; ctx.font = "bold 12px 'Segoe UI'"; ctx.fillText(`⚡ BATTERY: ${Math.ceil(player.battery)}%`, 35, 66);
+
+                } else if (currentStage === 5) {
+                    ctx.fillStyle = "#043927"; ctx.fillRect(0, 0, canvas.width, canvas.height); 
+                    ctx.strokeStyle = "rgba(0, 255, 136, 0.15)"; ctx.lineWidth = 1;
+                    for (let x = 0; x < canvas.width; x += 30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+                    for (let y = 0; y < canvas.height; y += 30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+
+                    pcbComponents.forEach(comp => {
+                        ctx.fillStyle = "#0f172a"; ctx.fillRect(comp.x, comp.y, comp.w, comp.h);
+                        ctx.strokeStyle = "#ffea00"; ctx.lineWidth = 2; ctx.strokeRect(comp.x, comp.y, comp.w, comp.h);
+                        ctx.fillStyle = "#ffea00"; ctx.font = "bold 11px 'Segoe UI'"; ctx.fillText(comp.label, comp.x + 6, comp.y + comp.h / 2 + 4);
+                    });
+
+                    ctx.fillStyle = "#00f0ff"; ctx.beginPath(); ctx.arc(pcbStartPad.x, pcbStartPad.y, pcbStartPad.radius, 0, Math.PI * 2); ctx.fill();
+                    ctx.strokeStyle = "#fff"; ctx.lineWidth = 3; ctx.stroke();
+                    ctx.fillStyle = "#000"; ctx.font = "bold 11px 'Segoe UI'"; ctx.fillText("START", pcbStartPad.x - 17, pcbStartPad.y + 4);
+
+                    ctx.fillStyle = "#00ff88"; ctx.beginPath(); ctx.arc(pcbEndPad.x, pcbEndPad.y, pcbEndPad.radius, 0, Math.PI * 2); ctx.fill();
+                    ctx.strokeStyle = "#fff"; ctx.lineWidth = 3; ctx.stroke();
+                    ctx.fillStyle = "#000"; ctx.font = "bold 11px 'Segoe UI'"; ctx.fillText("TARGET", pcbEndPad.x - 20, pcbEndPad.y + 4);
+
+                    // رسم الخطوط المحفوظة
+                    permanentPcbTraces.forEach((oldTrace) => {
+                        if (oldTrace.length > 1) {
+                            ctx.strokeStyle = "#f97316"; ctx.lineWidth = 8; ctx.lineCap = "round"; ctx.lineJoin = "round";
+                            ctx.beginPath();
+                            ctx.moveTo(oldTrace[0].x, oldTrace[0].y);
+                            for (let i = 1; i < oldTrace.length; i++) ctx.lineTo(oldTrace[i].x, oldTrace[i].y);
+                            ctx.stroke();
+                        }
+                    });
+
+                    // رسم الخط الحالي
+                    if (currentPcbTrace.length > 1) {
+                        ctx.strokeStyle = isImmune ? "#00ff88" : "#ffea00"; ctx.lineWidth = 7; ctx.lineCap = "round"; ctx.lineJoin = "round";
+                        ctx.beginPath();
+                        ctx.moveTo(currentPcbTrace[0].x, currentPcbTrace[0].y);
+                        for (let i = 1; i < currentPcbTrace.length; i++) ctx.lineTo(currentPcbTrace[i].x, currentPcbTrace[i].y);
+                        ctx.stroke();
+                    }
+
+                    ctx.fillStyle = "#fff"; ctx.font = "bold 14px 'Segoe UI'";
+                    ctx.fillText(`⚡ Routed Permanent Traces: ${pcbTracesCount} / ${pcbTargetTraces}`, 20, 80);
+                    ctx.fillStyle = "#ffea00"; ctx.font = "12px 'Segoe UI'";
+                    ctx.fillText(isImmune ? "🛡️ Safe Immunity Active! Ready for next route..." : "⚠️ Warning: Avoid previous traces!", 20, 100);
                 }
 
-                // رسم مجسم الروبوت مع الدوران في الورشة 4
                 if (player.invulnerableTimer % 10 < 5) {
                     if (currentStage === 4) {
-                        ctx.save();
-                        ctx.translate(player.x + 18, player.y + 20);
-                        ctx.rotate(player.angle);
-                        ctx.drawImage(marioImg, -18, -20, 36, 40);
-                        ctx.restore();
+                        ctx.save(); ctx.translate(player.x + 18, player.y + 20); ctx.rotate(player.angle);
+                        ctx.drawImage(marioImg, -18, -20, 36, 40); ctx.restore();
+                    } else if (currentStage === 5) {
+                        ctx.fillStyle = isImmune ? "#00ff88" : "#ff007f"; ctx.beginPath(); ctx.arc(player.x, player.y, 10, 0, Math.PI * 2); ctx.fill();
+                        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
                     } else {
                         ctx.drawImage(marioImg, player.x, player.y, player.width, player.height);
                     }
                 }
 
-                // العداد العلوي للمعومات
-                ctx.fillStyle = "#00f0ff"; ctx.font = "bold 16px 'Segoe UI', Tahoma";
-                ctx.fillText(`👤 ${playerName} | 🎯 Stage ${currentStage} | ❤️ Lives: ${lives} | 🪙 Coins: ${coins}`, 20, 30);
-                ctx.fillStyle = timer <= 15 ? "#ff007f" : "#00ff88";
-                ctx.fillText(`⏱️ Time: ${timer}s`, 770, 30);
+                ctx.fillStyle = "#00f0ff"; ctx.font = "bold 15px 'Segoe UI', Tahoma";
+                ctx.fillText(`👤 ${playerName} | 🎯 Workshop ${currentStage} | ❤️ Lives: ${lives} | 🪙 Coins: ${coins}`, 20, 30);
+                ctx.fillStyle = timer <= 10 ? "#ff007f" : "#00ff88"; ctx.fillText(`⏱️ Time: ${timer}s`, 430, 30);
             }
             else if (gameState === "MINIGAME") {
                 miniCoins.forEach(coin => {
-                    if (!coin.collected) {
-                        ctx.fillStyle = "#ffea00"; ctx.beginPath(); ctx.arc(coin.x, coin.y, 10, 0, Math.PI * 2); ctx.fill();
-                    }
+                    if (!coin.collected) { ctx.fillStyle = "#ffea00"; ctx.beginPath(); ctx.arc(coin.x, coin.y, 10, 0, Math.PI * 2); ctx.fill(); }
                 });
                 ctx.font = "24px Arial"; miniBugs.forEach(bug => ctx.fillText("👾", bug.x - 12, bug.y + 12));
                 ctx.drawImage(marioImg, player.x, player.y, player.width, player.height);
@@ -1096,16 +1221,11 @@
                 ctx.fillText(`🪙 Coins: ${coins} | ⏱️ Mini-game Time: ${miniTimer}s`, 25, 35);
             }
 
-            // رسم شريط التنبيه السلس دون تجميد الحركة
             if (toastTimer > 0) {
-                ctx.fillStyle = "rgba(255, 0, 127, 0.9)";
-                ctx.fillRect(canvas.width / 2 - 230, 110, 460, 40);
-                ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
-                ctx.strokeRect(canvas.width / 2 - 230, 110, 460, 40);
-                ctx.fillStyle = "#fff"; ctx.font = "bold 15px 'Segoe UI'";
-                ctx.textAlign = "center";
-                ctx.fillText(toastMessage, canvas.width / 2, 135);
-                ctx.textAlign = "left";
+                ctx.fillStyle = "rgba(255, 0, 127, 0.9)"; ctx.fillRect(canvas.width / 2 - 240, 110, 480, 40);
+                ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.strokeRect(canvas.width / 2 - 240, 110, 480, 40);
+                ctx.fillStyle = "#fff"; ctx.font = "bold 14px 'Segoe UI'"; ctx.textAlign = "center";
+                ctx.fillText(toastMessage, canvas.width / 2, 135); ctx.textAlign = "left";
             }
         }
 
