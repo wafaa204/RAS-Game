@@ -180,18 +180,19 @@
 
         .workshop-cards {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
             justify-content: center;
             margin-top: 10px;
+            max-width: 800px;
         }
 
         .card {
             background: #0f172a;
             border: 2px solid #00f0ff;
             border-radius: 12px;
-            padding: 15px;
-            width: 200px;
+            padding: 12px;
+            width: 170px;
             text-align: center;
             cursor: pointer;
             transition: 0.3s;
@@ -231,23 +232,28 @@
 
             <div class="workshop-cards">
                 <div class="card" id="selectStage1">
-                    <div style="font-size: 2.5rem;">📡</div>
-                    <h3 style="color:#00f0ff; margin: 8px 0;">Workshop 1</h3>
-                    <p style="font-size: 0.85rem; color:#aaa;">IoT Hardware & Sensors</p>
+                    <div style="font-size: 2rem;">📡</div>
+                    <h4 style="color:#00f0ff; margin: 4px 0;">Workshop 1</h4>
+                    <p style="font-size: 0.75rem; color:#aaa; margin:0;">IoT Hardware & Sensors</p>
                 </div>
                 <div class="card" id="selectStage2">
-                    <div style="font-size: 2.5rem;">🧠</div>
-                    <h3 style="color:#a855f7; margin: 8px 0;">Workshop 2 (Hard)</h3>
-                    <p style="font-size: 0.85rem; color:#aaa;">Deep Learning Memory Test</p>
+                    <div style="font-size: 2rem;">🧠</div>
+                    <h4 style="color:#a855f7; margin: 4px 0;">Workshop 2</h4>
+                    <p style="font-size: 0.75rem; color:#aaa; margin:0;">Deep Learning Test</p>
                 </div>
                 <div class="card" id="selectStage3">
-                    <div style="font-size: 2.5rem;">🎬</div>
-                    <h3 style="color:#ff007f; margin: 8px 0;">Workshop 3 (Pro)</h3>
-                    <p style="font-size: 0.85rem; color:#aaa;">AI Video Pipeline (12 Frames)</p>
+                    <div style="font-size: 2rem;">🎬</div>
+                    <h4 style="color:#ff007f; margin: 4px 0;">Workshop 3</h4>
+                    <p style="font-size: 0.75rem; color:#aaa; margin:0;">AI Video Creator</p>
+                </div>
+                <div class="card" id="selectStage4">
+                    <div style="font-size: 2rem;">🤖</div>
+                    <h4 style="color:#ffea00; margin: 4px 0;">Workshop 4</h4>
+                    <p style="font-size: 0.75rem; color:#aaa; margin:0;">Robotics Competition</p>
                 </div>
             </div>
 
-            <div style="margin-top: 20px;">
+            <div style="margin-top: 15px;">
                 <button id="openStoreBtn" class="btn" style="background: linear-gradient(90deg, #ffea00, #ff007f);">🏪 BOOTCAMP STORE (COINS & LIVES)</button>
             </div>
         </div>
@@ -256,8 +262,8 @@
         <div id="trophyScreen" class="overlay hidden">
             <h2 style="color: #ffea00;">🏆 WORKSHOP MASTERED! 🏆</h2>
             <div class="trophy-box">
-                <div style="font-size: 4rem;">🏆</div>
-                <h3 id="trophyPlayerName" style="color: #00f0ff; margin: 5px 0; font-size: 1.6rem;">Player Name</h3>
+                <div style="font-size: 3.5rem;">🏆</div>
+                <h3 id="trophyPlayerName" style="color: #00f0ff; margin: 5px 0; font-size: 1.5rem;">Player Name</h3>
                 <p id="trophyDesc" style="color: #00ff88; font-weight: bold; margin: 5px 0;">Workshop Mastered!</p>
             </div>
             <button id="nextStageBtn" class="btn" style="background: linear-gradient(90deg, #a855f7, #00f0ff);">PROCEED TO NEXT WORKSHOP 🧠</button>
@@ -316,6 +322,7 @@
         const selectStage1 = document.getElementById("selectStage1");
         const selectStage2 = document.getElementById("selectStage2");
         const selectStage3 = document.getElementById("selectStage3");
+        const selectStage4 = document.getElementById("selectStage4");
         const openStoreBtn = document.getElementById("openStoreBtn");
         const nextStageBtn = document.getElementById("nextStageBtn");
         const restartBtn = document.getElementById("restartBtn");
@@ -370,13 +377,12 @@
         let lives = 3;
         let coins = 0;
 
-        // نظام تنبيهات شاشة اللعبة السلس دون تجميد المدخلات
         let toastMessage = "";
         let toastTimer = 0;
 
         function showToast(msg) {
             toastMessage = msg;
-            toastTimer = 110; // يظهر التنبيه لقرابة ثانيتين
+            toastTimer = 110;
         }
 
         let miniCoins = [];
@@ -396,7 +402,10 @@
         const player = {
             x: 40, y: 350, width: 35, height: 45,
             vx: 0, vy: 0, speed: 6.5, jumpPower: -12.5, gravity: 0.5, isJumping: false,
-            invulnerableTimer: 0
+            invulnerableTimer: 0,
+            // خواص خاصة بالورشة 4 (الروبوت الدايناميكي)
+            angle: 0,
+            battery: 100
         };
 
         // --- STAGE 1 (IoT Hardware) ---
@@ -471,6 +480,26 @@
             });
         }
 
+        // --- STAGE 4 (Autonomous Robotics Arena) ---
+        let stage4Walls = [
+            { x: 200, y: 0, width: 25, height: 280 },
+            { x: 420, y: 160, width: 25, height: 290 },
+            { x: 650, y: 0, width: 25, height: 280 }
+        ];
+
+        let stage4Batteries = [
+            { x: 120, y: 220, collected: false },
+            { x: 320, y: 80, collected: false },
+            { x: 540, y: 380, collected: false }
+        ];
+
+        let stage4Enemies = [
+            { x: 310, y: 280, radius: 20, angle: 0, speed: 0.03, dist: 60 },
+            { x: 540, y: 140, radius: 20, angle: 0, speed: 0.04, dist: 70 }
+        ];
+
+        const goalZone = { x: 780, y: 330, width: 80, height: 80 };
+
         window.addEventListener("keydown", (e) => {
             unlockAudio();
             if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = true;
@@ -525,6 +554,7 @@
         selectStage1.addEventListener("click", () => { hubScreen.classList.add("hidden"); resetStageProgress(1); loadStage(1); startGame(); });
         selectStage2.addEventListener("click", () => { hubScreen.classList.add("hidden"); resetStageProgress(2); loadStage(2); startGame(); });
         selectStage3.addEventListener("click", () => { hubScreen.classList.add("hidden"); resetStageProgress(3); loadStage(3); startGame(); });
+        selectStage4.addEventListener("click", () => { hubScreen.classList.add("hidden"); resetStageProgress(4); loadStage(4); startGame(); });
         openStoreBtn.addEventListener("click", () => { openShop(); });
         backToHubBtn1.addEventListener("click", () => openHub());
         backToHubBtn2.addEventListener("click", () => openHub());
@@ -532,7 +562,7 @@
         nextStageBtn.addEventListener("click", () => {
             unlockAudio(); trophyScreen.classList.add("hidden");
             let nextStage = currentStage + 1;
-            if (nextStage > 3) openHub();
+            if (nextStage > 4) openHub();
             else { resetStageProgress(nextStage); loadStage(nextStage); startGame(); }
         });
 
@@ -582,6 +612,10 @@
             } else if (stageNum === 3) {
                 stage3Score = 0;
                 fallingItems = [];
+            } else if (stageNum === 4) {
+                player.battery = 100;
+                player.angle = 0;
+                stage4Batteries.forEach(b => b.collected = false);
             }
         }
 
@@ -590,7 +624,7 @@
             timer = stageNum === 3 ? 75 : 60;
             resetKeys();
             player.vx = 0; player.vy = 0;
-            player.invulnerableTimer = 60; // ثانية حماية عند البدء
+            player.invulnerableTimer = 60;
             
             if (stageNum === 1) {
                 mainTitle.innerText = "📡 Workshop 1: IoT Hardware & Sensors";
@@ -602,6 +636,9 @@
                 mainTitle.innerText = "🎬 Workshop 3: AI Video Creator Pro (12 Frames Target)";
                 player.x = canvas.width / 2 - 20; player.y = 360;
                 currentPromptText = stage3PromptsList[Math.floor(Math.random() * stage3PromptsList.length)];
+            } else if (stageNum === 4) {
+                mainTitle.innerText = "🤖 Workshop 4: Autonomous Robotics Competition";
+                player.x = 60; player.y = 60; player.angle = 0; player.battery = 100;
             }
         }
 
@@ -655,18 +692,18 @@
         }
 
         function handleHit(msg) {
-            if (player.invulnerableTimer > 0) return; // حماية مؤقتة لمنع التكرار الشديد
+            if (player.invulnerableTimer > 0) return;
 
             lives--; playSound('lose');
             if (msg) showToast(msg);
             
             resetKeys();
             player.vx = 0; player.vy = 0;
-            player.invulnerableTimer = 60; // ثانية حماية بعد التضرر
+            player.invulnerableTimer = 60;
 
-            // إرجاع اللاعب لموقعه الآمن دون تصفير الإنجاز
-            player.x = currentStage === 1 ? 40 : (currentStage === 2 ? 40 : canvas.width / 2 - 20);
-            player.y = currentStage === 1 ? 350 : (currentStage === 2 ? 100 : 360);
+            player.x = currentStage === 1 ? 40 : (currentStage === 2 ? 40 : (currentStage === 3 ? canvas.width / 2 - 20 : 60));
+            player.y = currentStage === 1 ? 350 : (currentStage === 2 ? 100 : (currentStage === 3 ? 360 : 60));
+            if (currentStage === 4) { player.angle = 0; player.battery = 100; }
 
             if (lives <= 0) {
                 openShop();
@@ -681,8 +718,9 @@
             if (currentStage === 1) trophyDesc.innerText = "Master of Workshop 1: Hardware & Sensors";
             else if (currentStage === 2) trophyDesc.innerText = "Master of Workshop 2: Deep Learning Neural Architecture";
             else if (currentStage === 3) trophyDesc.innerText = "Master of Workshop 3: AI Video Generation & Prompt Pro";
+            else if (currentStage === 4) trophyDesc.innerText = "Master of Workshop 4: Autonomous Robotics Competition Winner!";
             
-            if(currentStage === 3) {
+            if(currentStage === 4) {
                 nextStageBtn.style.display = "none";
             } else {
                 nextStageBtn.style.display = "inline-block";
@@ -696,12 +734,12 @@
             if (isWin) {
                 endTitle.innerText = `🏆 BOOTCAMP GRADUATE PRO: ${playerName.toUpperCase()}!`;
                 endTitle.style.color = "#00ff88";
-                endMessage.innerHTML = `Awesome Job <b>${playerName}</b>!<br>You mastered Deep Learning Architecture & AI Video Pipeline!`;
+                endMessage.innerHTML = `Awesome Job <b>${playerName}</b>!<br>You completed all 4 Bootcamp Workshops & Robotics Arena Challenge!`;
             } else {
                 playSound('lose');
                 endTitle.innerText = "💥 SYSTEM FAILURE!";
                 endTitle.style.color = "#ff007f";
-                endMessage.innerText = timer <= 0 ? "Time limit exceeded!" : "Out of lives!";
+                endMessage.innerText = timer <= 0 ? "Time limit exceeded!" : "Out of lives / Battery depleted!";
             }
             endScreen.classList.remove("hidden");
         }
@@ -821,7 +859,66 @@
                         }
                     }
 
-                    if (stage3Score >= targetStage3Score) gameOver(true);
+                    if (stage3Score >= targetStage3Score) showTrophyScreen();
+
+                } else if (currentStage === 4) {
+                    // حركة الفيزياء للروبوت المستقل (Differential Drive Physics)
+                    if (keys.left) player.angle -= 0.06;
+                    if (keys.right) player.angle += 0.06;
+
+                    let moveSpeed = 0;
+                    if (keys.up) { moveSpeed = 4.2; player.battery -= 0.05; }
+                    if (keys.down) { moveSpeed = -2.5; player.battery -= 0.03; }
+
+                    player.x += Math.cos(player.angle) * moveSpeed;
+                    player.y += Math.sin(player.angle) * moveSpeed;
+
+                    if (player.battery <= 0) handleHit("🔋 Battery Depleted!");
+
+                    // الحدود الحلبة الجانبية
+                    if (player.x < 15) player.x = 15;
+                    if (player.x > canvas.width - 35) player.x = canvas.width - 35;
+                    if (player.y < 15) player.y = 15;
+                    if (player.y > canvas.height - 35) player.y = canvas.height - 35;
+
+                    // اصطدام جدران المتاهة
+                    stage4Walls.forEach(w => {
+                        if (player.x < w.x + w.width && player.x + 30 > w.x && player.y < w.y + w.height && player.y + 30 > w.y) {
+                            handleHit("💥 Collided with Arena Wall!");
+                        }
+                    });
+
+                    // تجميع بطاريات شحن إضافية
+                    stage4Batteries.forEach(b => {
+                        if (!b.collected) {
+                            let dist = Math.hypot((player.x + 15) - b.x, (player.y + 15) - b.y);
+                            if (dist < 28) {
+                                b.collected = true;
+                                player.battery = Math.min(100, player.battery + 35);
+                                playSound('collect');
+                            }
+                        }
+                    });
+
+                    // حركات الروبوتات المنافسة 👾
+                    stage4Enemies.forEach(e => {
+                        e.angle += e.speed;
+                        let ex = e.x + Math.cos(e.angle) * e.dist;
+                        let ey = e.y + Math.sin(e.angle) * e.dist;
+
+                        let dist = Math.hypot((player.x + 15) - ex, (player.y + 15) - ey);
+                        if (dist < 25) handleHit("💥 Collided with Enemy Robot!");
+                    });
+
+                    // وصول خط نهاية المسابقة 🏁
+                    if (
+                        player.x < goalZone.x + goalZone.width &&
+                        player.x + 30 > goalZone.x &&
+                        player.y < goalZone.y + goalZone.height &&
+                        player.y + 30 > goalZone.y
+                    ) {
+                        gameOver(true);
+                    }
                 }
             }
             else if (gameState === "MINIGAME") {
@@ -915,13 +1012,73 @@
 
                     ctx.fillStyle = "#fff"; ctx.font = "bold 14px 'Segoe UI'";
                     ctx.fillText(`🎞️ Rendered Frames: ${stage3Score} / ${targetStage3Score}`, 20, 80);
+
+                } else if (currentStage === 4) {
+                    // رسم أرضية الحلبة الجدارية (Robotics Arena)
+                    ctx.strokeStyle = "rgba(0, 240, 255, 0.2)"; ctx.lineWidth = 2;
+                    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+                    // رسم خطوط المتاهة/الجدران
+                    ctx.fillStyle = "#ff007f";
+                    stage4Walls.forEach(w => {
+                        ctx.fillRect(w.x, w.y, w.width, w.height);
+                        ctx.strokeStyle = "#00f0ff"; ctx.lineWidth = 1.5;
+                        ctx.strokeRect(w.x, w.y, w.width, w.height);
+                    });
+
+                    // رسم هدف خط النهاية 🏁
+                    ctx.fillStyle = "rgba(0, 255, 136, 0.3)";
+                    ctx.fillRect(goalZone.x, goalZone.y, goalZone.width, goalZone.height);
+                    ctx.strokeStyle = "#00ff88"; ctx.lineWidth = 3;
+                    ctx.strokeRect(goalZone.x, goalZone.y, goalZone.width, goalZone.height);
+                    ctx.font = "32px Arial"; ctx.fillText("🏁", goalZone.x + 24, goalZone.y + 52);
+
+                    // رسم بطاريات الشحن 🔋
+                    ctx.font = "24px Arial";
+                    stage4Batteries.forEach(b => {
+                        if (!b.collected) ctx.fillText("🔋", b.x - 12, b.y + 10);
+                    });
+
+                    // رسم الروبوتات المنافسة 👾
+                    stage4Enemies.forEach(e => {
+                        let ex = e.x + Math.cos(e.angle) * e.dist;
+                        let ey = e.y + Math.sin(e.angle) * e.dist;
+                        ctx.fillText("👾", ex - 12, ey + 10);
+                    });
+
+                    // رسم محاكاة شعاع السنسور الألتراسونيك (Ultrasonic Ray Sensor)
+                    let rayX = (player.x + 18) + Math.cos(player.angle) * 70;
+                    let rayY = (player.y + 20) + Math.sin(player.angle) * 70;
+                    ctx.strokeStyle = "#00ff88"; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(player.x + 18, player.y + 20);
+                    ctx.lineTo(rayX, rayY);
+                    ctx.stroke();
+                    ctx.setLineDash([]); // إعادة الضبط
+
+                    // مؤشر شحن بطارية الروبوت 🔋 Bar
+                    ctx.fillStyle = "#1e293b"; ctx.fillRect(20, 55, 120, 14);
+                    ctx.fillStyle = player.battery > 30 ? "#00ff88" : "#ff007f";
+                    ctx.fillRect(20, 55, (player.battery / 100) * 120, 14);
+                    ctx.strokeStyle = "#fff"; ctx.lineWidth = 1; ctx.strokeRect(20, 55, 120, 14);
+                    ctx.fillStyle = "#fff"; ctx.font = "bold 11px 'Segoe UI'";
+                    ctx.fillText(`⚡ BATTERY: ${Math.ceil(player.battery)}%`, 25, 66);
                 }
 
-                // تأثير الوميض البصري عند الحماية بعد الإصابة
+                // رسم مجسم الروبوت مع الدوران في الورشة 4
                 if (player.invulnerableTimer % 10 < 5) {
-                    ctx.drawImage(marioImg, player.x, player.y, player.width, player.height);
+                    if (currentStage === 4) {
+                        ctx.save();
+                        ctx.translate(player.x + 18, player.y + 20);
+                        ctx.rotate(player.angle);
+                        ctx.drawImage(marioImg, -18, -20, 36, 40);
+                        ctx.restore();
+                    } else {
+                        ctx.drawImage(marioImg, player.x, player.y, player.width, player.height);
+                    }
                 }
 
+                // العداد العلوي للمعومات
                 ctx.fillStyle = "#00f0ff"; ctx.font = "bold 16px 'Segoe UI', Tahoma";
                 ctx.fillText(`👤 ${playerName} | 🎯 Stage ${currentStage} | ❤️ Lives: ${lives} | 🪙 Coins: ${coins}`, 20, 30);
                 ctx.fillStyle = timer <= 15 ? "#ff007f" : "#00ff88";
@@ -939,7 +1096,7 @@
                 ctx.fillText(`🪙 Coins: ${coins} | ⏱️ Mini-game Time: ${miniTimer}s`, 25, 35);
             }
 
-            // رسم شريط التنبيه السلس بدون تجميد الأزرار (In-Game Toast Notice)
+            // رسم شريط التنبيه السلس دون تجميد الحركة
             if (toastTimer > 0) {
                 ctx.fillStyle = "rgba(255, 0, 127, 0.9)";
                 ctx.fillRect(canvas.width / 2 - 230, 110, 460, 40);
@@ -948,7 +1105,7 @@
                 ctx.fillStyle = "#fff"; ctx.font = "bold 15px 'Segoe UI'";
                 ctx.textAlign = "center";
                 ctx.fillText(toastMessage, canvas.width / 2, 135);
-                ctx.textAlign = "left"; // إعادة الضبط
+                ctx.textAlign = "left";
             }
         }
 
